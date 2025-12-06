@@ -1,4 +1,6 @@
 # 🐦 Myna — Intelligent Data Mining Platform
+[![CI](https://github.com/Medalcode/Myna/actions/workflows/ci.yml/badge.svg)](https://github.com/Medalcode/Myna/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Myna es una plataforma de data mining para exploración, limpieza y análisis estadístico de datasets tabulares. Construida con **Arquitectura Hexagonal** y **sistema Agent/Skill** y desplegada en Vercel como API serverless.
 

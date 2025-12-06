@@ -2,7 +2,7 @@ import io
 import json
 
 import pandas as pd
-from fastapi import Depends, FastAPI, File, Form, Response, UploadFile
+from fastapi import Depends, FastAPI, File, Form, Request, Response, UploadFile
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -13,7 +13,9 @@ from src.adapters.api.dependencies import (
     get_session_id,
     in_vercel_runtime,
     save_analysis_session,
+    verify_api_key,
 )
+from starlette.datastructures import URL
 from src.adapters.visualization.plotter import PlottingAdapter
 from src.core.agents.base import AgentManager
 from src.core.domain_services import StatisticalAnalyzer
@@ -21,6 +23,16 @@ from src.core.models import AnalysisSession
 
 app = FastAPI(title="Myna API")
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+
+@app.middleware("http")
+async def auth_middleware(request: Request, call_next):
+    if request.url.path.startswith("/api/"):
+        try:
+            await verify_api_key(request)
+        except HTTPException:
+            return JSONResponse(status_code=401, content={"error": "Invalid or missing API key"})
+    return await call_next(request)
 
 
 def _get_request_df(session: AnalysisSession, df_json: str | None):

@@ -1,7 +1,7 @@
 import os
 import uuid
 
-from fastapi import Depends, Request, Response
+from fastapi import Depends, HTTPException, Request, Response, status
 
 import src.core.agents.skills.clean_skills  # noqa: F401
 
@@ -65,3 +65,16 @@ def save_analysis_session(session_id: str, session: AnalysisSession):
 
 def get_agent_manager():
     return agent_manager
+
+
+async def verify_api_key(request: Request):
+    api_key = os.environ.get("MYNA_API_KEY")
+    if api_key:
+        provided = request.headers.get("X-API-Key") or request.headers.get("Authorization", "").removeprefix("Bearer ")
+        if not provided or provided != api_key:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid or missing API key. Provide via X-API-Key header.",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    return True
