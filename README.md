@@ -142,6 +142,10 @@ PYTHONPATH=. pytest tests/ -v
 
 Los tests cubren comportamiento de dominio (sin mocks de frameworks). Esto permite refactors estructurales sin romper la lógica central.
 
+## 🔐 API Key Authentication
+
+Opcional: define `MYNA_API_KEY` en el entorno para requerir autenticación en todos los endpoints `/api/`. Los clientes deben incluir el header `X-API-Key: <tu-api-key>` en cada request. Sin la variable de entorno, la API funciona sin autenticación.
+
 ---
 
 ## ▶️ Ejecución local
@@ -188,6 +192,9 @@ Ver [`docs/BACKLOG.md`](docs/BACKLOG.md) para el plan técnico priorizado. Próx
 - [x] Endpoints nuevos: `/api/outliers`, `/api/clean/dedup`, `/api/export`
 - [x] Stats endpoint retorna JSON estructurado en vez de Markdown
 - [x] FileSystemAdapter acepta BytesIO in-memory (fix upload vía FastAPI)
+- [x] API Key authentication middleware (optional, via `MYNA_API_KEY` env var)
+- [x] CI/CD pipeline (ruff linting + pytest)
+- [x] Tests badge en README
 
 ---
 
