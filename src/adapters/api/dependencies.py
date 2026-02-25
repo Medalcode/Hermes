@@ -4,6 +4,17 @@ from src.core.models import AnalysisSession
 from src.adapters.repositories.local_storage import LocalFileSessionRepository, LocalFileDataRepository
 from src.core.agents.base import AgentManager
 
+# --- Registro de Super-Skills ---
+# La importación de cada módulo activa los decoradores @register_skill,
+# que pueblan el registro global _SKILL_REGISTRY en base.py.
+# Añadir aquí cualquier nuevo módulo de skills.
+import src.core.agents.skills.io_skills            # noqa: F401
+import src.core.agents.skills.clean_skills         # noqa: F401
+import src.core.agents.skills.transform_skills     # noqa: F401
+import src.core.agents.skills.stats_skills         # noqa: F401
+import src.core.agents.skills.ml_skills            # noqa: F401
+import src.core.agents.skills.visualization_skills # noqa: F401
+
 # Singleton instances (in a real app, use a proper DI container)
 session_repo = LocalFileSessionRepository()
 data_repo = LocalFileDataRepository()

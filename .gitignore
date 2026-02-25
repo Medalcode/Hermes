@@ -1,2 +1,19 @@
+# Vercel
 .vercel
 .env*.local
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Test cache
+.pytest_cache/
+
+# Local session/data storage (runtime artifacts, never commit)
+storage/
+
+# Temp / OS
+*.txt.bak
+Thumbs.db
+.DS_Store

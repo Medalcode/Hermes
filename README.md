@@ -1,190 +1,182 @@
-🐦 Myna — Intelligent Data Mining Platform
+# 🐦 Myna — Intelligent Data Mining Platform
 
-Myna es una plataforma de data mining diseñada para exploración, limpieza y análisis estadístico de datasets tabulares, con foco en arquitectura escalable, extensibilidad y separación estricta de responsabilidades.
+Myna es una plataforma de data mining para exploración, limpieza y análisis estadístico de datasets tabulares. Construida con **Arquitectura Hexagonal** y desplegada en Vercel como API serverless.
 
-No es un script experimental: es un sistema pensado para crecer en reglas de negocio, algoritmos y usuarios, manteniendo testabilidad y claridad conceptual.
+No es un script experimental: es un sistema diseñado para crecer en reglas de negocio, algoritmos y usuarios, manteniendo testabilidad y separación estricta de responsabilidades.
 
-🎯 Problema que resuelve
+---
 
-En muchos entornos analíticos:
+## 🎯 Problema que resuelve
 
-Los flujos de análisis viven en notebooks frágiles o scripts monolíticos
+En entornos analíticos típicos:
+- Los flujos de análisis viven en notebooks frágiles o scripts monolíticos.
+- La lógica de negocio se mezcla con UI, I/O y visualización.
+- Escalar a múltiples datasets, sesiones o algoritmos implica reescribir todo.
 
-La lógica de negocio se mezcla con UI, I/O y visualización
+Myna ataca ese problema desde la **arquitectura**, no desde el tooling.
 
-Escalar a múltiples datasets, sesiones o algoritmos implica reescribir todo
+---
 
-Myna ataca ese problema desde la arquitectura, no desde el tooling.
+## ✨ Capacidades
 
-🧠 Enfoque de diseño
+### 📊 Análisis y preparación de datos
+- Estadística descriptiva (media, mediana, std, curtosis, asimetría)
+- Tratamiento de valores nulos: media, mediana, moda, cero, eliminación de filas
+- Eliminación de duplicados
+- Escalado: Min-Max y Z-Score
+- Codificación de categóricas: one-hot y label encoding
+- Detección y tratamiento de outliers (IQR: informar, eliminar, winsorización)
 
-Myna está construido bajo Arquitectura Hexagonal (Ports & Adapters), lo que permite:
+### 🤖 Aprendizaje no supervisado
+- K-Means clustering (implementación nativa NumPy, sin scikit-learn)
 
-Aislar el dominio de cualquier framework
+### 📈 Visualización interactiva (Plotly.js)
+- Mapa de calor de correlaciones
+- Histograma de distribución con boxplot marginal
+- Regresión lineal (scatter + trendline)
+- Clusters coloreados
 
-Cambiar UI, persistencia o visualización sin tocar la lógica central
+---
 
-Testear el core sin dependencias externas
+## 🏗️ Arquitectura
 
-Evolucionar de herramienta local a servicio multiusuario
-
-✨ Capacidades principales
-📊 Análisis y preparación de datos
-
-Estadística descriptiva
-
-Limpieza de datos
-
-Imputación de valores faltantes:
-
-Media
-
-Mediana
-
-Cero
-
-Eliminación
-
-Escalado:
-
-MinMax
-
-Z-Score
-
-Detección y tratamiento de outliers (IQR)
-
-🤖 Aprendizaje no supervisado
-
-K-Means Clustering integrado como servicio de dominio
-
-📈 Visualización interactiva
-
-Gráficos dinámicos con Plotly.js
-
-Zoom, pan y hover
-
-Totalmente desacoplado del core
-
-🏗️ Arquitectura
-src/
-├── core/ # Dominio puro (sin frameworks)
-│ ├── domain_services.py # Estadística, limpieza, clustering
-│ ├── models.py # Modelos de dominio (Session, Dataset)
-│ └── ports.py # Interfaces (Ports)
+```
+Myna/
+├── api/
+│   └── index.py                  ← Entrypoint Vercel (importa FastAPI app)
 │
-├── adapters/ # Implementaciones externas
-│ ├── api/ # FastAPI (entrada HTTP)
-│ │ ├── router.py
-│ │ └── dependencies.py # Inyección de dependencias
-│ ├── repositories/ # Persistencia (repositorios)
-│ ├── fs/ # Acceso a archivos
-│ └── visualization/ # Plotting (Plotly)
+├── src/
+│   ├── main.py                   ← Entrypoint local (uvicorn)
+│   │
+│   ├── core/                     ← Dominio puro (sin frameworks)
+│   │   ├── models.py             ← AnalysisSession, OperationLog
+│   │   ├── ports.py              ← Interfaces ABC (SessionRepository, DataRepository)
+│   │   ├── domain_services.py   ← Lógica de negocio: StatisticalAnalyzer, DataCleaner,
+│   │   │                            DataScaler, OutlierManager, Clusterer
+│   │   └── agents/
+│   │       ├── base.py           ← AgentManager, SkillResult, @register_skill
+│   │       └── skills/           ← Super-Skills paramétricas (6 archivos de grupo)
+│   │           ├── io_skills.py              → load_file, export_file
+│   │           ├── clean_skills.py           → clean_nulls, drop_duplicates
+│   │           ├── transform_skills.py       → scale_columns, encode_categoricals
+│   │           ├── stats_skills.py           → compute_stats (descriptive|correlation|shape)
+│   │           ├── ml_skills.py              → kmeans_cluster
+│   │           └── visualization_skills.py   → plot (distribution|correlation|regression|cluster)
+│   │
+│   └── adapters/                 ← Infraestructura (dependen del core, nunca al revés)
+│       ├── api/
+│       │   ├── router.py         ← Rutas FastAPI
+│       │   └── dependencies.py   ← DI: sesión, AgentManager, registro de skills
+│       ├── fs/
+│       │   └── file_io.py        ← Carga/exportación de archivos (CSV, Excel)
+│       ├── repositories/
+│       │   └── local_storage.py  ← Persistencia local/tmp (LocalFile*Repository)
+│       └── visualization/
+│           └── plotter.py        ← PlottingAdapter (Plotly)
 │
-└── main.py # Bootstrap de la aplicación
+├── static/
+│   ├── css/style.css
+│   └── js/app.js
+├── templates/
+│   └── index.html
+│
+├── tests/
+│   └── test_core_services.py
+│
+└── docs/
+    ├── agent.md      ← Arquitectura del AgentManager y DataPrepAgent
+    ├── skills.md     ← Catálogo de Super-Skills, convenciones, fusiones
+    └── BACKLOG.md    ← Roadmap técnico priorizado
+```
+
+### Regla fundamental
+
+> El dominio no conoce a FastAPI, Plotly ni al filesystem.  
+> Los adapters dependen del core, **nunca al revés**.
+
+---
+
+## 🤖 Agent & Skills (capa de orquestación)
+
+Myna implementa un sistema de `Agent` / `Skill` para pipelines reproducibles y extensibles:
+
+- **`DataPrepAgent`** — único agente orquestador del sistema. Coordina todas las skills sobre una `AnalysisSession` via `AgentManager`.
+- **`Skill`** — acción atómica registrada con `@register_skill`. Recibe `session` + parámetros, delega en `domain_services` y devuelve `SkillResult`.
+- **Super-Skills paramétricas** — en lugar de un archivo por skill, las skills con lógica similar se agrupan en un único archivo con un parámetro discriminador (e.g. `compute_stats(stat_type=...)`, `plot(type=...)`).
+
+Ver documentación detallada en [`docs/agent.md`](docs/agent.md) y [`docs/skills.md`](docs/skills.md).
+
+---
 
 ## ⚖️ Decisiones de Arquitectura (ADR)
 
-Este proyecto toma decisiones técnicas conscientes basadas en restricciones de despliegue real (Capa Gratuita de Vercel / Serverless AWS Lambda):
+### 1. Optimización Zero-Dependencies (Vercel 250MB limit)
+- `scikit-learn` y `scipy` exceden el límite de Serverless Functions en Vercel.
+- **Solución**: K-Means, Z-Score y Kurtosis implementados con NumPy puro. Artefacto final < 100MB.
 
-1.  **Optimización "Zero-Dependencies"**:
-    - **Problema**: Límite estricto de 250MB para Serverless Functions. Librerías como `scikit-learn` y `scipy` exceden este límite.
-    - **Solución**: Implementación **nativa (NumPy/Pandas Pure)** de algoritmos como K-Means, Z-Score y Fisher Kurtosis. Se eliminaron dependencias pesadas para mantener el artifact ligero (<100MB).
+### 2. Persistencia agnóstica
+- `ports.py` define interfaces (`SessionRepository`, `DataRepository`).
+- Implementación actual: `LocalFileSessionRepository` + `LocalFileDataRepository` (archivos JSON + Pickle).
+- Migrar a S3 o Redis requiere solo implementar los ports y cambiar la inyección en `dependencies.py`.
 
-2.  **Persistencia Agnostica**:
-    - La arquitectura define interfaces (`ports.py`) que permiten cambiar el almacenamiento de `LocalStorage` (actual, para demos) a `S3/BlobStorage` (producción) cambiando una sola línea de inyección de dependencias.
+### 3. Visualización desacoplada
+- El backend genera JSON de Plotly. Cualquier frontend puede renderizarlo sin lógica de negocio en el cliente.
 
-3.  **Visualización Desacoplada**:
-    - Generación de gráficos JSON (Plotly) en el backend, permitiendo que cualquier frontend (React, Vue, Vanilla) renderice la interacción sin lógica de negocio en el cliente.
+### 4. Sesiones multi-usuario con cookies
+- Cada request lleva un `session_id` en cookie. Sin estado global compartido.
 
-📌 Regla clave:
+---
 
-El dominio no conoce a FastAPI, Plotly ni al filesystem.
-Los adapters dependen del core, nunca al revés.
+## 🧪 Testing
 
-🧪 Testing
-
-Los tests están enfocados en comportamiento de dominio, no en frameworks.
-
+```bash
 PYTHONPATH=. pytest tests/
+```
 
-Esto permite refactors estructurales sin romper la lógica central.
+Los tests cubren comportamiento de dominio (sin mocks de frameworks). Esto permite refactors estructurales sin romper la lógica central.
 
-▶️ Ejecución
+---
 
+## ▶️ Ejecución local
+
+```bash
 # Crear entorno virtual
-
-python3 -m venv venv
-source venv/bin/activate
+python -m venv venv
+venv\Scripts\activate        # Windows
+# source venv/bin/activate   # macOS/Linux
 
 # Instalar dependencias
-
 pip install -r requirements.txt
 
 # Ejecutar
-
 python src/main.py
+```
 
-Abrir en el navegador:
-👉 http://localhost:8000
+Abrir en el navegador: **http://localhost:8000**
 
-🔄 Evolución del proyecto
+---
 
-V5.1 — Arquitectura Stateless, Repository Pattern, soporte multi-sesión
+## 🔄 Historial de versiones
 
-V5.0 — Migración completa a FastAPI + UI custom, Hexagonal Architecture
+| Versión | Cambios principales |
+|---|---|
+| **V6.0** | Super-Skills paramétricas, AgentManager integrado, eliminación de código legacy (Gradio) |
+| **V5.1** | Repository Pattern, soporte multi-sesión con cookies |
+| **V5.0** | Migración completa a FastAPI + UI custom, Arquitectura Hexagonal |
+| **V4.0** | Modularización inicial (Gradio) |
+| Legacy | Script monolítico `final_eval3mineria.py` |
 
-V4.0 — Modularización inicial (Gradio)
+---
 
-Legacy — Script monolítico final_eval3mineria.py
+## 🧭 Roadmap
 
-El historial completo de decisiones técnicas y tareas pendientes vive en la Bitácora de Desarrollo (Bitacora.md).
+Ver [`docs/BACKLOG.md`](docs/BACKLOG.md) para el plan técnico priorizado. Próximos hitos:
 
-🧭 Visión a futuro
+- [ ] Adaptador S3 para persistencia real en producción
+- [ ] Patrón Strategy para limpieza y escalado (eliminar `if/else` de strings mágicos)
+- [ ] Test de integración end-to-end (Upload → Clean → Scale → Cluster)
+- [ ] Manejo asíncrono de operaciones pesadas (Job Queue)
 
-Myna está preparada para evolucionar hacia:
+---
 
-Persistencia real de sesiones
-
-Ejecución concurrente
-
-Nuevos algoritmos plug-and-play
-
-UI desacoplada como cliente independiente
-
-Uso como servicio analítico interno o producto
-
-🧩 Por qué este proyecto importa
-
-Este repositorio no busca mostrar “features”, sino criterio técnico:
-
-Diseño orientado al cambio
-
-Separación estricta de responsabilidades
-
-Dominio como ciudadano de primera clase
-
-## Código escrito para otros desarrolladores
-
-_Created by Medalcode & Team_
-
-## Agent & Skills (extensibilidad)
-
-Se ha añadido una capa de orquestación basada en el concepto de `Agent` y `Skill` para facilitar pipelines reproducibles y extensibles.
-
-- `Agent`: orquestador de alto nivel que coordina la ejecución de skills sobre una `AnalysisSession`.
-- `Skill`: acción atómica y registrable que opera sobre la sesión (ej.: `clean_nulls`, `scale_columns`, `kmeans_cluster`).
-
-Implementación inicial en el repo:
-
-- `docs/agent.md` — explicación conceptual y ciclo de vida.
-- `docs/skills.md` — catálogo, convenciones y plantilla de skills.
-- `src/core/agents/base.py` — `AgentManager`, `SkillResult` y decorador `@register_skill`.
-- `src/core/agents/skills/clean_nulls.py` — ejemplo de skill que usa `DataCleaner`.
-
-Motivación: permite agregar nuevas capacidades como plugins (skills) sin cambiar el router ni el core, mejorar trazabilidad y facilitar pruebas.
-
-Notas operativas:
-
-- Para inyectar el manager en rutas, usar `get_agent_manager()` desde `src/adapters/api/dependencies.py`.
-- Recomendado añadir `skill_history` y `schema_version` en `AnalysisSession` para auditoría y rollback.
-
+_Created by [Medalcode](https://github.com/Medalcode)_

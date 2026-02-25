@@ -62,3 +62,22 @@ class PlottingAdapter:
             return fig
         except:
             return None
+
+    @staticmethod
+    def plot_clusters(df: pd.DataFrame, x_col: str, y_col: str) -> Optional[go.Figure]:
+        if df is None or x_col not in df.columns or y_col not in df.columns:
+            return None
+
+        try:
+            color_col = "Cluster" if "Cluster" in df.columns else None
+            fig = px.scatter(
+                df,
+                x=x_col,
+                y=y_col,
+                color=color_col,
+                title=f"Clusters: {x_col} vs {y_col}",
+                hover_data=df.columns,
+            )
+            return fig
+        except:
+            return None
