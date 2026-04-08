@@ -165,6 +165,7 @@ Abrir en el navegador: **http://localhost:8000**
 
 | Versión | Cambios principales |
 |---|---|
+| **V6.1** | Vercel stateless mode (df_json + IndexedDB) + AgentManager router (08/04/2026) |
 | **V6.0** | Super-Skills paramétricas, AgentManager integrado, eliminación de código legacy (Gradio) |
 | **V5.1** | Repository Pattern, soporte multi-sesión con cookies |
 | **V5.0** | Migración completa a FastAPI + UI custom, Arquitectura Hexagonal |
