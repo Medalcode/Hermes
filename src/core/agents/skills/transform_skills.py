@@ -3,14 +3,14 @@ transform_skills.py — Super-Skill de Transformación
 Skills: scale_columns, encode_categoricals
 Delega en: DataScaler, pd.get_dummies / pd.factorize
 """
-from typing import List
-from src.core.agents.base import register_skill, SkillResult
-from src.core.models import AnalysisSession
+
+from src.core.agents.base import register_skill
 from src.core.domain_services import DataScaler
+from src.core.models import AnalysisSession
 
 
 @register_skill("scale_columns", description="Escala columnas numéricas (Min-Max o Z-Score)")
-def scale_columns(session: AnalysisSession, columns: List[str], method: str) -> dict:
+def scale_columns(session: AnalysisSession, columns: list[str], method: str) -> dict:
     """
     Parámetros:
         columns: lista de columnas a escalar.
@@ -28,7 +28,7 @@ def scale_columns(session: AnalysisSession, columns: List[str], method: str) -> 
 
 
 @register_skill("encode_categoricals", description="Codifica columnas categóricas (one-hot o label encoding)")
-def encode_categoricals(session: AnalysisSession, columns: List[str], method: str = "one-hot") -> dict:
+def encode_categoricals(session: AnalysisSession, columns: list[str], method: str = "one-hot") -> dict:
     """
     Parámetros:
         columns: lista de columnas categóricas a codificar.

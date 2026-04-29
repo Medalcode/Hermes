@@ -3,14 +3,14 @@ ml_skills.py — Super-Skill de Machine Learning
 Skills: kmeans_cluster
 Delega en: Clusterer.kmeans()
 """
-from typing import List
-from src.core.agents.base import register_skill, SkillResult
-from src.core.models import AnalysisSession
+
+from src.core.agents.base import register_skill
 from src.core.domain_services import Clusterer
+from src.core.models import AnalysisSession
 
 
 @register_skill("kmeans_cluster", description="Aplica clustering K-Means al DataFrame de la sesión")
-def kmeans_cluster(session: AnalysisSession, columns: List[str], k: int = 3) -> dict:
+def kmeans_cluster(session: AnalysisSession, columns: list[str], k: int = 3) -> dict:
     if not session.has_data():
         return {"error": "No hay datos en la sesión."}
 

@@ -3,10 +3,10 @@ io_skills.py — Super-Skill de I/O
 Skills: load_file, export_file
 Delega en: FileSystemAdapter
 """
-from src.core.agents.base import register_skill, SkillResult
-from src.core.models import AnalysisSession
 from src.adapters.fs.file_io import FileSystemAdapter
+from src.core.agents.base import register_skill
 from src.core.domain_services import StatisticalAnalyzer
+from src.core.models import AnalysisSession
 
 
 @register_skill("load_file", description="Carga un archivo (CSV/Excel) en la sesión actual")

@@ -12,10 +12,10 @@ FUSIÓN JUSTIFICADA:
     Se unifican con el parámetro `type` (mismo patrón que el endpoint /api/plot).
 """
 import json
-from typing import Optional
-from src.core.agents.base import register_skill, SkillResult
-from src.core.models import AnalysisSession
+
 from src.adapters.visualization.plotter import PlottingAdapter
+from src.core.agents.base import register_skill
+from src.core.models import AnalysisSession
 
 _VALID_PLOT_TYPES = {"distribution", "correlation", "regression", "cluster"}
 
@@ -30,9 +30,9 @@ _VALID_PLOT_TYPES = {"distribution", "correlation", "regression", "cluster"}
 def plot(
     session: AnalysisSession,
     type: str,
-    col: Optional[str] = None,
-    x: Optional[str] = None,
-    y: Optional[str] = None,
+    col: str | None = None,
+    x: str | None = None,
+    y: str | None = None,
 ) -> dict:
     """
     Super-Skill paramétrica de visualización.

@@ -6,14 +6,14 @@ Delega en: DataCleaner, pd.DataFrame nativo
 NOTA: El archivo legacy `clean_nulls.py` en este mismo directorio
 es HUÉRFANO y puede eliminarse. Su lógica está consolidada aquí.
 """
-from typing import List, Optional
-from src.core.agents.base import register_skill, SkillResult
-from src.core.models import AnalysisSession
+
+from src.core.agents.base import register_skill
 from src.core.domain_services import DataCleaner
+from src.core.models import AnalysisSession
 
 
 @register_skill("clean_nulls", description="Trata valores nulos en columnas específicas usando el método indicado")
-def clean_nulls(session: AnalysisSession, columns: List[str], method: str) -> dict:
+def clean_nulls(session: AnalysisSession, columns: list[str], method: str) -> dict:
     if not session.has_data():
         return {"error": "No hay datos en la sesión."}
 
@@ -26,7 +26,7 @@ def clean_nulls(session: AnalysisSession, columns: List[str], method: str) -> di
 
 
 @register_skill("drop_duplicates", description="Elimina filas duplicadas del DataFrame de la sesión")
-def drop_duplicates(session: AnalysisSession, subset: Optional[List[str]] = None) -> dict:
+def drop_duplicates(session: AnalysisSession, subset: list[str] | None = None) -> dict:
     if not session.has_data():
         return {"error": "No hay datos en la sesión."}
 

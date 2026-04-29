@@ -1,11 +1,13 @@
 from abc import ABC, abstractmethod
-from typing import Optional, List
+
 import pandas as pd
+
 from .models import AnalysisSession
+
 
 class SessionRepository(ABC):
     @abstractmethod
-    def get_session(self, session_id: str) -> Optional[AnalysisSession]:
+    def get_session(self, session_id: str) -> AnalysisSession | None:
         """Retrieves a session metadata by ID."""
         pass
 
@@ -21,6 +23,6 @@ class DataRepository(ABC):
         pass
 
     @abstractmethod
-    def load_dataframe(self, session_id: str) -> Optional[pd.DataFrame]:
+    def load_dataframe(self, session_id: str) -> pd.DataFrame | None:
         """Loads the dataframe for a given session."""
         pass

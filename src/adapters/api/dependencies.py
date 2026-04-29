@@ -1,20 +1,25 @@
 import os
-from fastapi import Request, Response, Depends
 import uuid
-from src.core.models import AnalysisSession
-from src.adapters.repositories.local_storage import LocalFileSessionRepository, LocalFileDataRepository
-from src.core.agents.base import AgentManager
+
+from fastapi import Depends, Request, Response
+
+import src.core.agents.skills.clean_skills  # noqa: F401
 
 # --- Registro de Super-Skills ---
 # La importación de cada módulo activa los decoradores @register_skill,
 # que pueblan el registro global _SKILL_REGISTRY en base.py.
 # Añadir aquí cualquier nuevo módulo de skills.
-import src.core.agents.skills.io_skills            # noqa: F401
-import src.core.agents.skills.clean_skills         # noqa: F401
-import src.core.agents.skills.transform_skills     # noqa: F401
-import src.core.agents.skills.stats_skills         # noqa: F401
-import src.core.agents.skills.ml_skills            # noqa: F401
-import src.core.agents.skills.visualization_skills # noqa: F401
+import src.core.agents.skills.io_skills  # noqa: F401
+import src.core.agents.skills.ml_skills  # noqa: F401
+import src.core.agents.skills.stats_skills  # noqa: F401
+import src.core.agents.skills.transform_skills  # noqa: F401
+import src.core.agents.skills.visualization_skills  # noqa: F401
+from src.adapters.repositories.local_storage import (
+    LocalFileDataRepository,
+    LocalFileSessionRepository,
+)
+from src.core.agents.base import AgentManager
+from src.core.models import AnalysisSession
 
 # Singleton instances (in a real app, use a proper DI container)
 session_repo = LocalFileSessionRepository()
@@ -42,12 +47,12 @@ async def get_analysis_session(session_id: str = Depends(get_session_id)) -> Ana
     session = session_repo.get_session(session_id)
     if not session:
         session = AnalysisSession()
-    
+
     # Load heavy data
     df = data_repo.load_dataframe(session_id)
     if df is not None:
         session.current_df = df
-        
+
     return session
 
 def save_analysis_session(session_id: str, session: AnalysisSession):

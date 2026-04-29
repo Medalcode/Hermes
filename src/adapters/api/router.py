@@ -1,29 +1,29 @@
-from fastapi import FastAPI, UploadFile, File, Form, Depends, Response, Request
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse
 import io
 import json
-from typing import List, Optional
-import pandas as pd
 
-from src.core.models import AnalysisSession
-from src.core.domain_services import StatisticalAnalyzer
-from src.adapters.visualization.plotter import PlottingAdapter
+import pandas as pd
+from fastapi import Depends, FastAPI, File, Form, Response, UploadFile
+from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
+
+from src.adapters.api.dataframe_json import dataframe_from_split_json, dataframe_to_split_json
 from src.adapters.api.dependencies import (
-    get_analysis_session,
-    save_analysis_session,
-    get_session_id,
     get_agent_manager,
+    get_analysis_session,
+    get_session_id,
     in_vercel_runtime,
+    save_analysis_session,
 )
-from src.adapters.api.dataframe_json import dataframe_to_split_json, dataframe_from_split_json
+from src.adapters.visualization.plotter import PlottingAdapter
 from src.core.agents.base import AgentManager
+from src.core.domain_services import StatisticalAnalyzer
+from src.core.models import AnalysisSession
 
 app = FastAPI(title="Myna API")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
-def _get_request_df(session: AnalysisSession, df_json: Optional[str]):
+def _get_request_df(session: AnalysisSession, df_json: str | None):
     if in_vercel_runtime():
         if not df_json:
             return None, JSONResponse(status_code=400, content={"error": "Session dataframe payload is required"})
@@ -83,9 +83,9 @@ async def upload_file(
 
 @app.post("/api/clean/nulls")
 async def clean_nulls(
-    cols: List[str] = Form(...),
+    cols: list[str] = Form(...),
     method: str = Form(...),
-    df_json: Optional[str] = Form(None),
+    df_json: str | None = Form(None),
     session: AnalysisSession = Depends(get_analysis_session),
     session_id: str = Depends(get_session_id),
     agent_manager: AgentManager = Depends(get_agent_manager),
@@ -109,9 +109,9 @@ async def clean_nulls(
 
 @app.post("/api/clean/scale")
 async def scale_data(
-    cols: List[str] = Form(...),
+    cols: list[str] = Form(...),
     method: str = Form(...),
-    df_json: Optional[str] = Form(None),
+    df_json: str | None = Form(None),
     session: AnalysisSession = Depends(get_analysis_session),
     session_id: str = Depends(get_session_id),
     agent_manager: AgentManager = Depends(get_agent_manager),
@@ -135,8 +135,8 @@ async def scale_data(
 
 @app.post("/api/clean/dedup")
 async def drop_duplicates(
-    subset: Optional[str] = Form(None),
-    df_json: Optional[str] = Form(None),
+    subset: str | None = Form(None),
+    df_json: str | None = Form(None),
     session: AnalysisSession = Depends(get_analysis_session),
     session_id: str = Depends(get_session_id),
     agent_manager: AgentManager = Depends(get_agent_manager),
@@ -163,7 +163,7 @@ async def drop_duplicates(
 async def handle_outliers(
     column: str = Form(...),
     treatment: str = Form(...),
-    df_json: Optional[str] = Form(None),
+    df_json: str | None = Form(None),
     session: AnalysisSession = Depends(get_analysis_session),
     session_id: str = Depends(get_session_id),
 ):
@@ -208,7 +208,7 @@ async def get_stats(
 
 @app.post("/api/stats")
 async def post_stats(
-    df_json: Optional[str] = Form(None),
+    df_json: str | None = Form(None),
     session: AnalysisSession = Depends(get_analysis_session),
     agent_manager: AgentManager = Depends(get_agent_manager),
 ):
@@ -229,9 +229,9 @@ async def post_stats(
 
 @app.post("/api/cluster")
 async def run_cluster(
-    cols: List[str] = Form(...),
+    cols: list[str] = Form(...),
     k: int = Form(...),
-    df_json: Optional[str] = Form(None),
+    df_json: str | None = Form(None),
     session: AnalysisSession = Depends(get_analysis_session),
     session_id: str = Depends(get_session_id),
     agent_manager: AgentManager = Depends(get_agent_manager),
@@ -259,7 +259,7 @@ async def get_plot(
     x: str = Form(None),
     y: str = Form(None),
     col: str = Form(None),
-    df_json: Optional[str] = Form(None),
+    df_json: str | None = Form(None),
     session: AnalysisSession = Depends(get_analysis_session),
 ):
     current_df, error_response = _get_request_df(session, df_json)
@@ -284,7 +284,7 @@ async def get_plot(
 @app.post("/api/export")
 async def export_data(
     format_type: str = Form("CSV"),
-    df_json: Optional[str] = Form(None),
+    df_json: str | None = Form(None),
     session: AnalysisSession = Depends(get_analysis_session),
     session_id: str = Depends(get_session_id),
     agent_manager: AgentManager = Depends(get_agent_manager),

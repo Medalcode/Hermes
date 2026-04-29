@@ -1,14 +1,9 @@
-import pytest
-from fastapi.testclient import TestClient
-import pandas as pd
-import io
 import os
 
-from src.adapters.api.router import app
-from src.core.models import AnalysisSession
-from src.adapters.api.dependencies import save_analysis_session, get_session_id, get_agent_manager
-from src.core.agents.base import AgentManager
+import pytest
+from fastapi.testclient import TestClient
 
+from src.adapters.api.router import app
 
 client = TestClient(app)
 

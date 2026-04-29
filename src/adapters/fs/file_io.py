@@ -1,16 +1,17 @@
-import pandas as pd
-from pathlib import Path
-from typing import Union, Tuple
 import io
+from pathlib import Path
+
+import pandas as pd
+
 
 class FileSystemAdapter:
     """
     Driven Adapter for File I/O.
     Shields the Core from file format details and path handling.
     """
-    
+
     @staticmethod
-    def load_file(file_obj, delimiter: str = ",") -> Tuple[pd.DataFrame, str]:
+    def load_file(file_obj, delimiter: str = ",") -> tuple[pd.DataFrame, str]:
         """
         Loads a file (CSV or Excel) into a DataFrame.
         Accepts a file path (str/Path) or a file-like object (BytesIO, etc.).
@@ -55,14 +56,14 @@ class FileSystemAdapter:
             return None, f"Error de lectura: {str(e)}"
 
     @staticmethod
-    def export_file(df: pd.DataFrame, format_type: str) -> Tuple[str, str]:
+    def export_file(df: pd.DataFrame, format_type: str) -> tuple[str, str]:
         """
         Saves DataFrame to disk.
         Returns (file_path, error_message).
         """
         if df is None:
             return None, "No hay datos para exportar."
-            
+
         try:
             if format_type == "CSV":
                 filename = "datos_procesados.csv"

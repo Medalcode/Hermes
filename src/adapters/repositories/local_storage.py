@@ -1,35 +1,37 @@
-import os
 import json
+import os
+
 import pandas as pd
-from typing import Optional
-from src.core.ports import SessionRepository, DataRepository
+
 from src.core.models import AnalysisSession, OperationLog
+from src.core.ports import DataRepository, SessionRepository
+
 
 class LocalFileSessionRepository(SessionRepository):
     def __init__(self, storage_dir: str = "storage/sessions"):
         if os.environ.get("VERCEL"):
             # Vercel filesystem is read-only except for /tmp
             storage_dir = "/tmp/storage/sessions"
-            
+
         self.storage_dir = storage_dir
         os.makedirs(self.storage_dir, exist_ok=True)
 
     def _get_path(self, session_id: str) -> str:
         return os.path.join(self.storage_dir, f"{session_id}.json")
 
-    def get_session(self, session_id: str) -> Optional[AnalysisSession]:
+    def get_session(self, session_id: str) -> AnalysisSession | None:
         path = self._get_path(session_id)
         if not os.path.exists(path):
             return None
-        
-        with open(path, "r") as f:
+
+        with open(path) as f:
             data = json.load(f)
-            
+
         session = AnalysisSession()
         # Reconstruct logs
         if "logs" in data:
             session.logs = [OperationLog(l["message"]) for l in data["logs"]]
-        
+
         return session
 
     def save_session(self, session: AnalysisSession, session_id: str) -> None:
@@ -45,7 +47,7 @@ class LocalFileDataRepository(DataRepository):
         if os.environ.get("VERCEL"):
             # Vercel filesystem is read-only except for /tmp
             storage_dir = "/tmp/storage/data"
-            
+
         self.storage_dir = storage_dir
         os.makedirs(self.storage_dir, exist_ok=True)
 
@@ -57,7 +59,7 @@ class LocalFileDataRepository(DataRepository):
         # Use pickle to avoid pyarrow dependency (size limit on Vercel)
         df.to_pickle(path)
 
-    def load_dataframe(self, session_id: str) -> Optional[pd.DataFrame]:
+    def load_dataframe(self, session_id: str) -> pd.DataFrame | None:
         path = self._get_path(session_id)
         if not os.path.exists(path):
             return None

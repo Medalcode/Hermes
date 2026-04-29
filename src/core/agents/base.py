@@ -1,17 +1,19 @@
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, Dict, Any, Optional
+from typing import Any
+
 from src.core.models import AnalysisSession
 
 
 @dataclass
 class SkillResult:
-    changes: Dict[str, Any]
-    preview: Optional[Dict[str, Any]] = None
-    logs: Optional[list] = None
+    changes: dict[str, Any]
+    preview: dict[str, Any] | None = None
+    logs: list | None = None
 
 
 # Simple registry (in-memory). Skills se registran con el decorador `@register_skill`.
-_SKILL_REGISTRY: Dict[str, Dict[str, Any]] = {}
+_SKILL_REGISTRY: dict[str, dict[str, Any]] = {}
 
 
 def register_skill(skill_id: str, description: str = "") -> Callable:

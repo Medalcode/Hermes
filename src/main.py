@@ -1,5 +1,6 @@
-import sys
 import os
+import sys
+
 import uvicorn
 
 # Ensure project root is in pythonpath
