@@ -145,11 +145,15 @@ async def scale_data(
     }
 
 @app.get("/api/stats")
-async def get_stats(session: AnalysisSession = Depends(get_analysis_session)):
+async def get_stats(response: Response, session: AnalysisSession = Depends(get_analysis_session)):
     if in_vercel_runtime():
         return JSONResponse(status_code=400, content={"error": "This operation requires session data in the request body"})
     if not session.has_data():
         return JSONResponse(status_code=400, content={"error": "No dataframe"})
+
+    response.headers["Deprecation"] = "true"
+    response.headers["Sunset"] = "Wed, 31 Dec 2026 23:59:59 GMT"
+    response.headers["Link"] = '</api/stats>; rel="successor-version"'
     
     analyzer = StatisticalAnalyzer()
     desc = analyzer.calculate_descriptive_stats(session.current_df)

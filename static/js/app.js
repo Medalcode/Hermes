@@ -1,7 +1,8 @@
 // --- STATE ---
 let currentColumns = [];
 let numericColumns = [];
-const DB_NAME = 'myna';
+const DB_NAME = 'myna-session-db';
+const LEGACY_DB_NAME = 'myna';
 const STORE_NAME = 'sessions';
 const ACTIVE_SESSION_KEY = 'active';
 
@@ -29,9 +30,9 @@ async function postData(url, formData) {
     return response.json();
 }
 
-function openSessionDB() {
+function openSessionDB(dbName = DB_NAME) {
     return new Promise((resolve, reject) => {
-        const request = indexedDB.open(DB_NAME, 1);
+        const request = indexedDB.open(dbName, 1);
         request.onupgradeneeded = () => {
             const db = request.result;
             if (!db.objectStoreNames.contains(STORE_NAME)) {
@@ -44,13 +45,19 @@ function openSessionDB() {
 }
 
 async function loadLocalSession() {
-    const db = await openSessionDB();
-    return new Promise((resolve, reject) => {
-        const tx = db.transaction(STORE_NAME, 'readonly');
-        const req = tx.objectStore(STORE_NAME).get(ACTIVE_SESSION_KEY);
-        req.onsuccess = () => resolve(req.result || null);
-        req.onerror = () => reject(req.error);
-    });
+    const readFromDb = async (dbName) => {
+        const db = await openSessionDB(dbName);
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction(STORE_NAME, 'readonly');
+            const req = tx.objectStore(STORE_NAME).get(ACTIVE_SESSION_KEY);
+            req.onsuccess = () => resolve(req.result || null);
+            req.onerror = () => reject(req.error);
+        });
+    };
+
+    const currentSession = await readFromDb(DB_NAME);
+    if (currentSession) return currentSession;
+    return readFromDb(LEGACY_DB_NAME);
 }
 
 async function saveLocalSession(patch) {
