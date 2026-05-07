@@ -25,17 +25,17 @@ templates = Jinja2Templates(directory="templates")
 def _get_request_df(session: AnalysisSession, df_json: Optional[str]):
     if in_vercel_runtime():
         if not df_json:
-            return None, JSONResponse(status_code=400, content={"error": "df_json is required in Vercel mode"})
+            return None, JSONResponse(status_code=400, content={"error": "Session dataframe payload is required"})
         try:
             return dataframe_from_split_json(df_json), None
-        except ValueError as exc:
-            return None, JSONResponse(status_code=400, content={"error": str(exc)})
+        except ValueError:
+            return None, JSONResponse(status_code=400, content={"error": "Invalid session dataframe payload"})
 
     if df_json:
         try:
             return dataframe_from_split_json(df_json), None
-        except ValueError as exc:
-            return None, JSONResponse(status_code=400, content={"error": str(exc)})
+        except ValueError:
+            return None, JSONResponse(status_code=400, content={"error": "Invalid session dataframe payload"})
     return session.current_df, None
 
 
@@ -147,7 +147,7 @@ async def scale_data(
 @app.get("/api/stats")
 async def get_stats(session: AnalysisSession = Depends(get_analysis_session)):
     if in_vercel_runtime():
-        return JSONResponse(status_code=400, content={"error": "Use POST /api/stats with df_json in Vercel mode"})
+        return JSONResponse(status_code=400, content={"error": "This operation requires session data in the request body"})
     if not session.has_data():
         return JSONResponse(status_code=400, content={"error": "No dataframe"})
     

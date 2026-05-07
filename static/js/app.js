@@ -190,14 +190,14 @@ async function cleanNulls() {
     document.getElementById('cleanStatus').innerText = res.message;
     if(res.preview) renderTable(res.preview, 'uploadPreview'); // Update preview
     if (res.df_json) {
-        await saveLocalSession({
+        const updatedSession = await saveLocalSession({
             df_json: res.df_json,
             columns: res.columns || currentColumns,
             numeric_columns: res.numeric_columns || numericColumns,
             shape: res.shape,
             last_preview: res.preview || localSession?.last_preview
         });
-        applySessionState(await loadLocalSession());
+        applySessionState(updatedSession);
     }
 }
 
@@ -219,14 +219,14 @@ async function scaleData() {
     document.getElementById('cleanStatus').innerText = res.message;
     if(res.preview) renderTable(res.preview, 'uploadPreview');
     if (res.df_json) {
-        await saveLocalSession({
+        const updatedSession = await saveLocalSession({
             df_json: res.df_json,
             columns: res.columns || currentColumns,
             numeric_columns: res.numeric_columns || numericColumns,
             shape: res.shape,
             last_preview: res.preview || localSession?.last_preview
         });
-        applySessionState(await loadLocalSession());
+        applySessionState(updatedSession);
     }
 }
 
@@ -249,13 +249,13 @@ async function loadStats() {
     }
     document.getElementById('statsOutput').innerHTML = html;
     if (res.df_json) {
-        await saveLocalSession({
+        const updatedSession = await saveLocalSession({
             df_json: res.df_json,
             columns: res.columns || currentColumns,
             numeric_columns: res.numeric_columns || numericColumns,
             shape: res.shape
         });
-        applySessionState(await loadLocalSession());
+        applySessionState(updatedSession);
     }
 }
 
@@ -279,14 +279,14 @@ async function runCluster() {
         renderTable(res.preview, 'uploadPreview');
     }
     if (res.df_json) {
-        await saveLocalSession({
+        const updatedSession = await saveLocalSession({
             df_json: res.df_json,
             columns: res.columns || currentColumns,
             numeric_columns: res.numeric_columns || numericColumns,
             shape: res.shape,
             last_preview: res.preview || localSession?.last_preview
         });
-        applySessionState(await loadLocalSession());
+        applySessionState(updatedSession);
     }
 }
 
@@ -330,10 +330,8 @@ async function generatePlot() {
     Plotly.newPlot('mainPlot', res.data, res.layout);
 }
 
-// Init
-updatePlotInputs();
-
 window.addEventListener('load', async () => {
+    updatePlotInputs();
     try {
         const session = await loadLocalSession();
         if (session) {
