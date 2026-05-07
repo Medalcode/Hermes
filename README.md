@@ -125,6 +125,10 @@ Ver documentación detallada en [`docs/agent.md`](docs/agent.md) y [`docs/skills
 ### 4. Sesiones multi-usuario con cookies
 - Cada request lleva un `session_id` en cookie. Sin estado global compartido.
 
+### 5. Modos de ejecución de sesión
+- **Local Dev (no Vercel)**: estado server-side por cookie + persistencia en `storage/` (metadata JSON + DataFrame en pickle).
+- **Vercel Stateless (`VERCEL=1`)**: el backend no persiste sesión; el frontend guarda estado en IndexedDB y envía `df_json` (`DataFrame.to_json(orient="split")`) en cada operación.
+
 ---
 
 ## 🧪 Testing

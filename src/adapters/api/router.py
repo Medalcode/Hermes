@@ -12,13 +12,40 @@ from src.core.models import AnalysisSession
 from src.core.domain_services import StatisticalAnalyzer, DataCleaner, DataScaler, Clusterer
 from src.adapters.fs.file_io import FileSystemAdapter
 from src.adapters.visualization.plotter import PlottingAdapter
-from src.adapters.api.dependencies import get_analysis_session, save_analysis_session, get_session_id
+from src.adapters.api.dependencies import get_analysis_session, save_analysis_session, get_session_id, in_vercel_runtime
+from src.adapters.api.dataframe_json import dataframe_to_split_json, dataframe_from_split_json
 
 app = FastAPI(title="Myna API")
 
 # Mount Static & Templates
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
+
+
+def _get_request_df(session: AnalysisSession, df_json: Optional[str]):
+    if in_vercel_runtime():
+        if not df_json:
+            return None, JSONResponse(status_code=400, content={"error": "df_json is required in Vercel mode"})
+        try:
+            return dataframe_from_split_json(df_json), None
+        except ValueError as exc:
+            return None, JSONResponse(status_code=400, content={"error": str(exc)})
+
+    if df_json:
+        try:
+            return dataframe_from_split_json(df_json), None
+        except ValueError as exc:
+            return None, JSONResponse(status_code=400, content={"error": str(exc)})
+    return session.current_df, None
+
+
+def _build_df_response(df: pd.DataFrame):
+    return {
+        "df_json": dataframe_to_split_json(df),
+        "columns": df.columns.tolist(),
+        "numeric_columns": StatisticalAnalyzer.get_numeric_columns(df),
+        "shape": df.shape,
+    }
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request, response: Response):
@@ -61,48 +88,67 @@ async def upload_file(
         "columns": cols, 
         "numeric_columns": num_cols,
         "preview": preview,
-        "shape": df.shape
+        "shape": df.shape,
+        "df_json": dataframe_to_split_json(df)
     }
 
 @app.post("/api/clean/nulls")
 async def clean_nulls(
     cols: List[str] = Form(...), 
     method: str = Form(...),
+    df_json: Optional[str] = Form(None),
     session: AnalysisSession = Depends(get_analysis_session),
     session_id: str = Depends(get_session_id)
 ):
-    if not session.has_data(): 
+    current_df, error_response = _get_request_df(session, df_json)
+    if error_response:
+        return error_response
+    if current_df is None:
         return JSONResponse(status_code=400, content={"error": "No dataframe"})
     
-    df_new, count = DataCleaner.handle_nulls(session.current_df, cols, method)
+    df_new, count = DataCleaner.handle_nulls(current_df, cols, method)
     session.current_df = df_new
     session.add_log(f"API: Nulls cleaned with {method} on {cols}")
     
     save_analysis_session(session_id, session)
     
-    return {"message": f"Se trataron {count} valores.", "preview": df_new.head(10).fillna("").to_dict(orient="records")}
+    return {
+        "message": f"Se trataron {count} valores.",
+        "preview": df_new.head(10).fillna("").to_dict(orient="records"),
+        **_build_df_response(df_new),
+    }
 
 @app.post("/api/clean/scale")
 async def scale_data(
     cols: List[str] = Form(...), 
     method: str = Form(...),
+    df_json: Optional[str] = Form(None),
     session: AnalysisSession = Depends(get_analysis_session),
     session_id: str = Depends(get_session_id)
 ):
-    if not session.has_data(): 
+    current_df, error_response = _get_request_df(session, df_json)
+    if error_response:
+        return error_response
+    if current_df is None:
         return JSONResponse(status_code=400, content={"error": "No dataframe"})
     
-    df_new = DataScaler.apply_scaling(session.current_df, cols, method)
+    df_new = DataScaler.apply_scaling(current_df, cols, method)
     session.current_df = df_new
     session.add_log(f"API: Scaled {cols} with {method}")
     
     save_analysis_session(session_id, session)
     
-    return {"message": f"Escalado completado.", "preview": df_new.head(10).fillna("").to_dict(orient="records")}
+    return {
+        "message": f"Escalado completado.",
+        "preview": df_new.head(10).fillna("").to_dict(orient="records"),
+        **_build_df_response(df_new),
+    }
 
 @app.get("/api/stats")
 async def get_stats(session: AnalysisSession = Depends(get_analysis_session)):
-    if not session.has_data(): 
+    if in_vercel_runtime():
+        return JSONResponse(status_code=400, content={"error": "Use POST /api/stats with df_json in Vercel mode"})
+    if not session.has_data():
         return JSONResponse(status_code=400, content={"error": "No dataframe"})
     
     analyzer = StatisticalAnalyzer()
@@ -114,24 +160,51 @@ async def get_stats(session: AnalysisSession = Depends(get_analysis_session)):
         "correlation": corr.to_json(orient="split") if corr is not None else None
     }
 
+
+@app.post("/api/stats")
+async def post_stats(
+    df_json: Optional[str] = Form(None),
+    session: AnalysisSession = Depends(get_analysis_session),
+):
+    current_df, error_response = _get_request_df(session, df_json)
+    if error_response:
+        return error_response
+    if current_df is None:
+        return JSONResponse(status_code=400, content={"error": "No dataframe"})
+
+    analyzer = StatisticalAnalyzer()
+    desc = analyzer.calculate_descriptive_stats(current_df)
+    corr = analyzer.calculate_correlation_matrix(current_df)
+
+    return {
+        "descriptive": desc.to_markdown() if not desc.empty else "No data",
+        "correlation": corr.to_json(orient="split") if corr is not None else None,
+        **_build_df_response(current_df),
+    }
+
 @app.post("/api/cluster")
 async def run_cluster(
     cols: List[str] = Form(...), 
     k: int = Form(...),
+    df_json: Optional[str] = Form(None),
     session: AnalysisSession = Depends(get_analysis_session),
     session_id: str = Depends(get_session_id)
 ):
-    if not session.has_data(): 
+    current_df, error_response = _get_request_df(session, df_json)
+    if error_response:
+        return error_response
+    if current_df is None:
         return JSONResponse(status_code=400, content={"error": "No dataframe"})
     
-    df_new, msg = Clusterer.kmeans(session.current_df, cols, k)
+    df_new, msg = Clusterer.kmeans(current_df, cols, k)
     session.current_df = df_new
     
     save_analysis_session(session_id, session)
     
     return {
         "message": msg,
-        "preview": df_new.head(10).fillna("").to_dict(orient="records")
+        "preview": df_new.head(10).fillna("").to_dict(orient="records"),
+        **_build_df_response(df_new),
     }
 
 @app.post("/api/plot")
@@ -140,22 +213,25 @@ async def get_plot(
     x: str = Form(None), 
     y: str = Form(None), 
     col: str = Form(None),
+    df_json: Optional[str] = Form(None),
     session: AnalysisSession = Depends(get_analysis_session)
 ):
-    if not session.has_data(): 
+    current_df, error_response = _get_request_df(session, df_json)
+    if error_response:
+        return error_response
+    if current_df is None:
         return JSONResponse(status_code=400, content={"error": "No dataframe"})
     
     fig = None
     if type == "correlation":
-        fig = PlottingAdapter.plot_correlation_heatmap(session.current_df)
+        fig = PlottingAdapter.plot_correlation_heatmap(current_df)
     elif type == "distribution":
-        fig = PlottingAdapter.plot_distribution(session.current_df, col)
+        fig = PlottingAdapter.plot_distribution(current_df, col)
     elif type == "regression":
-        fig = PlottingAdapter.plot_regression(session.current_df, x, y)
+        fig = PlottingAdapter.plot_regression(current_df, x, y)
     elif type == "cluster":
-        fig = PlottingAdapter.plot_clusters(session.current_df, x, y)
+        fig = PlottingAdapter.plot_clusters(current_df, x, y)
         
     if fig:
         return json.loads(fig.to_json())
     return {"error": "Could not generate plot"}
-
