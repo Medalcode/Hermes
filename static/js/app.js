@@ -1,6 +1,10 @@
 // --- STATE ---
 let currentColumns = [];
 let numericColumns = [];
+const DB_NAME = 'myna-session-db';
+const LEGACY_DB_NAME = 'myna';
+const STORE_NAME = 'sessions';
+const ACTIVE_SESSION_KEY = 'active';
 
 // --- NAVIGATION ---
 function showTab(tabId) {
@@ -24,6 +28,72 @@ async function postData(url, formData) {
         body: formData
     });
     return response.json();
+}
+
+function openSessionDB(dbName = DB_NAME) {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(dbName, 1);
+        request.onupgradeneeded = () => {
+            const db = request.result;
+            if (!db.objectStoreNames.contains(STORE_NAME)) {
+                db.createObjectStore(STORE_NAME);
+            }
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+async function loadLocalSession() {
+    const readFromDb = async (dbName) => {
+        const db = await openSessionDB(dbName);
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction(STORE_NAME, 'readonly');
+            const req = tx.objectStore(STORE_NAME).get(ACTIVE_SESSION_KEY);
+            req.onsuccess = () => resolve(req.result || null);
+            req.onerror = () => reject(req.error);
+        });
+    };
+
+    const currentSession = await readFromDb(DB_NAME);
+    if (currentSession) return currentSession;
+    return readFromDb(LEGACY_DB_NAME);
+}
+
+async function saveLocalSession(patch) {
+    const db = await openSessionDB();
+    const current = (await loadLocalSession()) || {};
+    const next = { ...current, ...patch };
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        const req = tx.objectStore(STORE_NAME).put(next, ACTIVE_SESSION_KEY);
+        req.onsuccess = () => resolve(next);
+        req.onerror = () => reject(req.error);
+    });
+}
+
+async function clearLocalSession() {
+    const db = await openSessionDB();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readwrite');
+        const req = tx.objectStore(STORE_NAME).delete(ACTIVE_SESSION_KEY);
+        req.onsuccess = () => resolve();
+        req.onerror = () => reject(req.error);
+    });
+}
+
+function applySessionState(session, statusText = '') {
+    if (!session) return;
+    currentColumns = session.columns || [];
+    numericColumns = session.numeric_columns || [];
+    updateSelects(currentColumns, ['nullCols']);
+    updateSelects(numericColumns, ['scaleCols', 'clusterCols', 'plotCol', 'plotX', 'plotY']);
+    if (session.last_preview) {
+        renderTable(session.last_preview, 'uploadPreview');
+    }
+    if (statusText) {
+        document.getElementById('uploadStatus').innerText = statusText;
+    }
 }
 
 function updateSelects(columns, selectIds, isNumeric=false) {
@@ -86,6 +156,13 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
         // Update State
         currentColumns = res.columns;
         numericColumns = res.numeric_columns;
+        await saveLocalSession({
+            df_json: res.df_json,
+            columns: res.columns,
+            numeric_columns: res.numeric_columns,
+            shape: res.shape,
+            last_preview: res.preview
+        });
         
         // Detect 'Cluster' if re-uploading processed file
         if(currentColumns.includes('Cluster') && !numericColumns.includes('Cluster')) {
@@ -112,10 +189,23 @@ async function cleanNulls() {
     const formData = new FormData();
     cols.forEach(c => formData.append('cols', c));
     formData.append('method', method);
+    const localSession = await loadLocalSession();
+    if (localSession?.df_json) formData.append('df_json', localSession.df_json);
     
     const res = await postData('/api/clean/nulls', formData);
+    if (res.error) { alert(res.error); return; }
     document.getElementById('cleanStatus').innerText = res.message;
     if(res.preview) renderTable(res.preview, 'uploadPreview'); // Update preview
+    if (res.df_json) {
+        const updatedSession = await saveLocalSession({
+            df_json: res.df_json,
+            columns: res.columns || currentColumns,
+            numeric_columns: res.numeric_columns || numericColumns,
+            shape: res.shape,
+            last_preview: res.preview || localSession?.last_preview
+        });
+        applySessionState(updatedSession);
+    }
 }
 
 // 3. Scale
@@ -128,15 +218,31 @@ async function scaleData() {
     const formData = new FormData();
     cols.forEach(c => formData.append('cols', c));
     formData.append('method', method);
+    const localSession = await loadLocalSession();
+    if (localSession?.df_json) formData.append('df_json', localSession.df_json);
     
     const res = await postData('/api/clean/scale', formData);
+    if (res.error) { alert(res.error); return; }
     document.getElementById('cleanStatus').innerText = res.message;
     if(res.preview) renderTable(res.preview, 'uploadPreview');
+    if (res.df_json) {
+        const updatedSession = await saveLocalSession({
+            df_json: res.df_json,
+            columns: res.columns || currentColumns,
+            numeric_columns: res.numeric_columns || numericColumns,
+            shape: res.shape,
+            last_preview: res.preview || localSession?.last_preview
+        });
+        applySessionState(updatedSession);
+    }
 }
 
 // 4. Stats
 async function loadStats() {
-    const res = await fetch('/api/stats').then(r => r.json());
+    const formData = new FormData();
+    const localSession = await loadLocalSession();
+    if (localSession?.df_json) formData.append('df_json', localSession.df_json);
+    const res = await postData('/api/stats', formData);
     if(res.error) { alert(res.error); return; }
     
     // Simple markdown render for now, or just pre
@@ -149,6 +255,15 @@ async function loadStats() {
          // ... render corr table logic if needed ...
     }
     document.getElementById('statsOutput').innerHTML = html;
+    if (res.df_json) {
+        const updatedSession = await saveLocalSession({
+            df_json: res.df_json,
+            columns: res.columns || currentColumns,
+            numeric_columns: res.numeric_columns || numericColumns,
+            shape: res.shape
+        });
+        applySessionState(updatedSession);
+    }
 }
 
 // 5. Cluster
@@ -161,16 +276,24 @@ async function runCluster() {
     const formData = new FormData();
     cols.forEach(c => formData.append('cols', c));
     formData.append('k', k);
+    const localSession = await loadLocalSession();
+    if (localSession?.df_json) formData.append('df_json', localSession.df_json);
     
     const res = await postData('/api/cluster', formData);
+    if (res.error) { alert(res.error); return; }
     document.getElementById('clusterStatus').innerText = res.message;
     if(res.preview) {
         renderTable(res.preview, 'uploadPreview');
-        currentColumns = Object.keys(res.preview[0]); 
-        // Add Cluster to options? Usually it's numeric/categorical mixed.
-        // Assuming Cluster is numeric (int), it might need to be added to numeric lists
-        if(!numericColumns.includes('Cluster')) numericColumns.push('Cluster');
-        updateSelects(numericColumns, ['plotCol', 'plotX', 'plotY', 'clusterCols']);
+    }
+    if (res.df_json) {
+        const updatedSession = await saveLocalSession({
+            df_json: res.df_json,
+            columns: res.columns || currentColumns,
+            numeric_columns: res.numeric_columns || numericColumns,
+            shape: res.shape,
+            last_preview: res.preview || localSession?.last_preview
+        });
+        applySessionState(updatedSession);
     }
 }
 
@@ -198,6 +321,8 @@ async function generatePlot() {
     const type = document.getElementById('plotType').value;
     const formData = new FormData();
     formData.append('type', type);
+    const localSession = await loadLocalSession();
+    if (localSession?.df_json) formData.append('df_json', localSession.df_json);
     
     if(type === 'distribution') {
         formData.append('col', document.getElementById('plotCol').value);
@@ -212,5 +337,24 @@ async function generatePlot() {
     Plotly.newPlot('mainPlot', res.data, res.layout);
 }
 
-// Init
-updatePlotInputs();
+window.addEventListener('load', async () => {
+    updatePlotInputs();
+    try {
+        const session = await loadLocalSession();
+        if (session) {
+            const shapeText = session.shape ? ` (${session.shape[0]}, ${session.shape[1]})` : '';
+            applySessionState(session, `Sesión local restaurada${shapeText}.`);
+        }
+    } catch (error) {
+        console.error('Error loading local session', error);
+    }
+});
+
+document.getElementById('clearLocalSessionBtn')?.addEventListener('click', async () => {
+    await clearLocalSession();
+    currentColumns = [];
+    numericColumns = [];
+    updateSelects([], ['nullCols', 'scaleCols', 'clusterCols', 'plotCol', 'plotX', 'plotY']);
+    document.getElementById('uploadPreview').innerHTML = '';
+    document.getElementById('uploadStatus').innerText = 'Sesión local eliminada.';
+});
