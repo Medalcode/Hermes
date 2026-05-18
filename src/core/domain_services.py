@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-import numpy as np
 # from scipy.stats import skew, kurtosis, shapiro (Removed for Vercel size limit)
 from typing import List, Tuple, Dict, Any
 
@@ -20,7 +19,7 @@ class StatisticalAnalyzer:
     def get_categorical_columns(df: pd.DataFrame) -> List[str]:
         if df is None:
             return []
-        return df.select_dtypes(include=['object', 'category']).columns.tolist()
+        return df.select_dtypes(include=['object', 'category', 'str']).columns.tolist()
 
     def calculate_descriptive_stats(self, df: pd.DataFrame) -> pd.DataFrame:
         """Calculates descriptive statistics including median."""

@@ -13,37 +13,44 @@ class FileSystemAdapter:
     def load_file(file_obj, delimiter: str = ",") -> Tuple[pd.DataFrame, str]:
         """
         Loads a file (CSV or Excel) into a DataFrame.
+        Accepts a file path (str/Path) or a file-like object (BytesIO, etc.).
         Returns (DataFrame, ErrorMessage).
         """
         if file_obj is None:
             return None, "Error: Debe subir un archivo."
 
-        # Gradio passes a named temp file path usually, or a file-like object
-        # In newer Gradio versions, it might be an object with .name
-        path_str = getattr(file_obj, 'name', str(file_obj))
-        path = Path(path_str)
-        
+        has_read = hasattr(file_obj, 'read')
+        if has_read:
+            raw = file_obj.read()
+            if isinstance(raw, bytes):
+                file_obj = io.BytesIO(raw)
+
+        name = getattr(file_obj, 'name', '')
+        path = Path(name) if name else Path("file.csv")
+
         try:
             df = None
-            if path.suffix.lower() == '.csv':
-                # Try UTF-8 first, then ISO-8859-1
+            is_bytes = isinstance(file_obj, io.BytesIO) or has_read
+            is_csv = path.suffix.lower() == '.csv' or (is_bytes and path.suffix.lower() != '.xls' and path.suffix.lower() != '.xlsx')
+
+            if is_csv:
                 try:
-                    df = pd.read_csv(path, delimiter=delimiter, encoding="utf-8")
+                    df = pd.read_csv(file_obj, delimiter=delimiter, encoding="utf-8")
                 except UnicodeDecodeError:
-                    df = pd.read_csv(path, delimiter=delimiter, encoding="ISO-8859-1")
-                
+                    file_obj.seek(0)
+                    df = pd.read_csv(file_obj, delimiter=delimiter, encoding="ISO-8859-1")
+
                 if df.shape[1] == 1:
                      return None, "Error: CSV de una sola columna. Verifique el delimitador."
 
             elif path.suffix.lower() in ['.xls', '.xlsx']:
-                df = pd.read_excel(path)
+                df = pd.read_excel(file_obj)
             else:
                 return None, "Error: Formato no soportado (use CSV o Excel)."
-                
-            # Basic sanitization
+
             df.replace([float('inf'), float('-inf')], float('nan'), inplace=True)
             return df, ""
-            
+
         except Exception as e:
             return None, f"Error de lectura: {str(e)}"
 

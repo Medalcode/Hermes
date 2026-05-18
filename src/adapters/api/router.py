@@ -1,150 +1,168 @@
-from fastapi import FastAPI, UploadFile, File, Form, Request, Depends, Response
+from fastapi import FastAPI, UploadFile, File, Form, Depends
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
-from fastapi.responses import JSONResponse, HTMLResponse
-import pandas as pd
+from fastapi.responses import JSONResponse
 import io
 import json
 from typing import List, Optional
 
-# Core & Adapters
 from src.core.models import AnalysisSession
-from src.core.domain_services import StatisticalAnalyzer, DataCleaner, DataScaler, Clusterer
-from src.adapters.fs.file_io import FileSystemAdapter
 from src.adapters.visualization.plotter import PlottingAdapter
-from src.adapters.api.dependencies import get_analysis_session, save_analysis_session, get_session_id
+from src.adapters.api.dependencies import (
+    get_analysis_session,
+    save_analysis_session,
+    get_session_id,
+    get_agent_manager,
+)
+from src.core.agents.base import AgentManager
 
 app = FastAPI(title="Myna API")
 
-# Mount Static & Templates
 app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
 
-@app.get("/", response_class=HTMLResponse)
-async def read_root(request: Request, response: Response):
-    # Ensure session cookie is set on load
-    # We call get_session_id manually or just let the first API call handle it, 
-    # but for checking "existing" state in UI, we might need it.
-    # Ideally, frontend manages this, but we'll set it here to be safe.
-    from src.adapters.api.dependencies import get_session_id
-    await get_session_id(request, response)
-    return templates.TemplateResponse("index.html", {"request": request})
+
+@app.get("/")
+async def read_root():
+    return {"status": "ok", "message": "Myna API is running"}
+
 
 @app.post("/api/upload")
 async def upload_file(
-    file: UploadFile = File(...), 
+    file: UploadFile = File(...),
     delimiter: str = Form(","),
     session: AnalysisSession = Depends(get_analysis_session),
-    session_id: str = Depends(get_session_id)
+    session_id: str = Depends(get_session_id),
+    agent_manager: AgentManager = Depends(get_agent_manager),
 ):
     contents = await file.read()
     file_obj = io.BytesIO(contents)
     file_obj.name = file.filename
-    
-    df, error = FileSystemAdapter.load_file(file_obj, delimiter)
-    
-    if error:
-        return JSONResponse(status_code=400, content={"error": error})
-        
-    session.current_df = df
-    session.add_log(f"API: Uploaded {file.filename}")
-    
-    # Persist State
+    result = agent_manager.execute_skill("load_file", session, file_obj=file_obj, delimiter=delimiter)
+    if result.changes.get("error"):
+        return JSONResponse(status_code=400, content={"error": result.changes["error"]})
     save_analysis_session(session_id, session)
-    
-    cols = df.columns.tolist()
-    num_cols = StatisticalAnalyzer.get_numeric_columns(df)
-    preview = df.head(10).fillna("").to_dict(orient="records")
-    
     return {
-        "message": "Carga exitosa", 
-        "columns": cols, 
-        "numeric_columns": num_cols,
-        "preview": preview,
-        "shape": df.shape
+        "message": "Carga exitosa",
+        "columns": result.changes.get("columns", []),
+        "numeric_columns": result.changes.get("numeric_columns", []),
+        "preview": result.changes.get("preview", []),
+        "shape": result.changes.get("shape", [0, 0]),
     }
+
 
 @app.post("/api/clean/nulls")
 async def clean_nulls(
-    cols: List[str] = Form(...), 
+    cols: List[str] = Form(...),
     method: str = Form(...),
     session: AnalysisSession = Depends(get_analysis_session),
-    session_id: str = Depends(get_session_id)
+    session_id: str = Depends(get_session_id),
+    agent_manager: AgentManager = Depends(get_agent_manager),
 ):
-    if not session.has_data(): 
+    if not session.has_data():
         return JSONResponse(status_code=400, content={"error": "No dataframe"})
-    
-    df_new, count = DataCleaner.handle_nulls(session.current_df, cols, method)
-    session.current_df = df_new
-    session.add_log(f"API: Nulls cleaned with {method} on {cols}")
-    
+    result = agent_manager.execute_skill("clean_nulls", session, columns=cols, method=method)
+    if result.changes.get("error"):
+        return JSONResponse(status_code=400, content={"error": result.changes["error"]})
     save_analysis_session(session_id, session)
-    
-    return {"message": f"Se trataron {count} valores.", "preview": df_new.head(10).fillna("").to_dict(orient="records")}
+    return {"message": f"Se trataron {result.changes.get('affected_count', 0)} valores.", "preview": result.changes.get("preview", [])}
+
 
 @app.post("/api/clean/scale")
 async def scale_data(
-    cols: List[str] = Form(...), 
+    cols: List[str] = Form(...),
     method: str = Form(...),
     session: AnalysisSession = Depends(get_analysis_session),
-    session_id: str = Depends(get_session_id)
+    session_id: str = Depends(get_session_id),
+    agent_manager: AgentManager = Depends(get_agent_manager),
 ):
-    if not session.has_data(): 
+    if not session.has_data():
         return JSONResponse(status_code=400, content={"error": "No dataframe"})
-    
-    df_new = DataScaler.apply_scaling(session.current_df, cols, method)
-    session.current_df = df_new
-    session.add_log(f"API: Scaled {cols} with {method}")
-    
+    result = agent_manager.execute_skill("scale_columns", session, columns=cols, method=method)
+    if result.changes.get("error"):
+        return JSONResponse(status_code=400, content={"error": result.changes["error"]})
     save_analysis_session(session_id, session)
-    
-    return {"message": f"Escalado completado.", "preview": df_new.head(10).fillna("").to_dict(orient="records")}
+    return {"message": "Escalado completado.", "preview": result.changes.get("preview", [])}
+
+
+@app.post("/api/clean/dedup")
+async def drop_duplicates(
+    subset: Optional[str] = Form(None),
+    session: AnalysisSession = Depends(get_analysis_session),
+    session_id: str = Depends(get_session_id),
+    agent_manager: AgentManager = Depends(get_agent_manager),
+):
+    if not session.has_data():
+        return JSONResponse(status_code=400, content={"error": "No dataframe"})
+    cols = [c.strip() for c in subset.split(",")] if subset else None
+    result = agent_manager.execute_skill("drop_duplicates", session, subset=cols)
+    if result.changes.get("error"):
+        return JSONResponse(status_code=400, content={"error": result.changes["error"]})
+    save_analysis_session(session_id, session)
+    return {"message": f"Se eliminaron {result.changes.get('affected_count', 0)} duplicados.", "preview": result.changes.get("preview", [])}
+
+
+@app.post("/api/outliers")
+async def handle_outliers(
+    column: str = Form(...),
+    treatment: str = Form(...),
+    session: AnalysisSession = Depends(get_analysis_session),
+    session_id: str = Depends(get_session_id),
+):
+    if not session.has_data():
+        return JSONResponse(status_code=400, content={"error": "No dataframe"})
+    from src.core.domain_services import OutlierManager
+    df_new, count, detail = OutlierManager.detect_and_treat(session.current_df, column, treatment)
+    session.current_df = df_new
+    session.add_log(f"API: Outliers treated on '{column}' with {treatment}")
+    save_analysis_session(session_id, session)
+    return {
+        "message": f"{count} outliers: {detail}",
+        "count": int(count),
+        "preview": df_new.head(10).fillna("").to_dict(orient="records"),
+    }
+
 
 @app.get("/api/stats")
-async def get_stats(session: AnalysisSession = Depends(get_analysis_session)):
-    if not session.has_data(): 
+async def get_stats(
+    session: AnalysisSession = Depends(get_analysis_session),
+    agent_manager: AgentManager = Depends(get_agent_manager),
+):
+    if not session.has_data():
         return JSONResponse(status_code=400, content={"error": "No dataframe"})
-    
-    analyzer = StatisticalAnalyzer()
-    desc = analyzer.calculate_descriptive_stats(session.current_df)
-    corr = analyzer.calculate_correlation_matrix(session.current_df)
-    
+    desc_result = agent_manager.execute_skill("compute_stats", session, stat_type="descriptive")
+    corr_result = agent_manager.execute_skill("compute_stats", session, stat_type="correlation")
     return {
-        "descriptive": desc.to_markdown() if not desc.empty else "No data",
-        "correlation": corr.to_json(orient="split") if corr is not None else None
+        "descriptive": desc_result.changes.get("result", {}),
+        "correlation": corr_result.changes.get("result", {}),
     }
+
 
 @app.post("/api/cluster")
 async def run_cluster(
-    cols: List[str] = Form(...), 
+    cols: List[str] = Form(...),
     k: int = Form(...),
     session: AnalysisSession = Depends(get_analysis_session),
-    session_id: str = Depends(get_session_id)
+    session_id: str = Depends(get_session_id),
+    agent_manager: AgentManager = Depends(get_agent_manager),
 ):
-    if not session.has_data(): 
+    if not session.has_data():
         return JSONResponse(status_code=400, content={"error": "No dataframe"})
-    
-    df_new, msg = Clusterer.kmeans(session.current_df, cols, k)
-    session.current_df = df_new
-    
+    result = agent_manager.execute_skill("kmeans_cluster", session, columns=cols, k=k)
+    if result.changes.get("error"):
+        return JSONResponse(status_code=400, content={"error": result.changes["error"]})
     save_analysis_session(session_id, session)
-    
-    return {
-        "message": msg,
-        "preview": df_new.head(10).fillna("").to_dict(orient="records")
-    }
+    return {"message": result.changes.get("message", "Clustering completado."), "preview": result.changes.get("preview", [])}
+
 
 @app.post("/api/plot")
 async def get_plot(
-    type: str = Form(...), 
-    x: str = Form(None), 
-    y: str = Form(None), 
+    type: str = Form(...),
+    x: str = Form(None),
+    y: str = Form(None),
     col: str = Form(None),
-    session: AnalysisSession = Depends(get_analysis_session)
+    session: AnalysisSession = Depends(get_analysis_session),
 ):
-    if not session.has_data(): 
+    if not session.has_data():
         return JSONResponse(status_code=400, content={"error": "No dataframe"})
-    
     fig = None
     if type == "correlation":
         fig = PlottingAdapter.plot_correlation_heatmap(session.current_df)
@@ -154,8 +172,21 @@ async def get_plot(
         fig = PlottingAdapter.plot_regression(session.current_df, x, y)
     elif type == "cluster":
         fig = PlottingAdapter.plot_clusters(session.current_df, x, y)
-        
     if fig:
         return json.loads(fig.to_json())
     return {"error": "Could not generate plot"}
 
+
+@app.post("/api/export")
+async def export_data(
+    format_type: str = Form("CSV"),
+    session: AnalysisSession = Depends(get_analysis_session),
+    session_id: str = Depends(get_session_id),
+    agent_manager: AgentManager = Depends(get_agent_manager),
+):
+    if not session.has_data():
+        return JSONResponse(status_code=400, content={"error": "No dataframe"})
+    result = agent_manager.execute_skill("export_file", session, format_type=format_type)
+    if result.changes.get("error"):
+        return JSONResponse(status_code=400, content={"error": result.changes["error"]})
+    return {"file_path": result.changes.get("file_path", "")}

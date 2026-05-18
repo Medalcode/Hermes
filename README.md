@@ -1,6 +1,6 @@
 # 🐦 Myna — Intelligent Data Mining Platform
 
-Myna es una plataforma de data mining para exploración, limpieza y análisis estadístico de datasets tabulares. Construida con **Arquitectura Hexagonal** y desplegada en Vercel como API serverless.
+Myna es una plataforma de data mining para exploración, limpieza y análisis estadístico de datasets tabulares. Construida con **Arquitectura Hexagonal** y **sistema Agent/Skill** y desplegada en Vercel como API serverless.
 
 No es un script experimental: es un sistema diseñado para crecer en reglas de negocio, algoritmos y usuarios, manteniendo testabilidad y separación estricta de responsabilidades.
 
@@ -55,7 +55,7 @@ Myna/
 │   │   │                            DataScaler, OutlierManager, Clusterer
 │   │   └── agents/
 │   │       ├── base.py           ← AgentManager, SkillResult, @register_skill
-│   │       └── skills/           ← Super-Skills paramétricas (6 archivos de grupo)
+│   │       └── skills/           ← 9 Super-Skills paramétricas (6 archivos)
 │   │           ├── io_skills.py              → load_file, export_file
 │   │           ├── clean_skills.py           → clean_nulls, drop_duplicates
 │   │           ├── transform_skills.py       → scale_columns, encode_categoricals
@@ -64,9 +64,9 @@ Myna/
 │   │           └── visualization_skills.py   → plot (distribution|correlation|regression|cluster)
 │   │
 │   └── adapters/                 ← Infraestructura (dependen del core, nunca al revés)
-│       ├── api/
-│       │   ├── router.py         ← Rutas FastAPI
-│       │   └── dependencies.py   ← DI: sesión, AgentManager, registro de skills
+│   ├── api/
+│   │   ├── router.py         ← 10 endpoints REST que usan AgentManager.execute_skill()
+│   │   └── dependencies.py   ← DI: sesión, AgentManager, registro de skills
 │       ├── fs/
 │       │   └── file_io.py        ← Carga/exportación de archivos (CSV, Excel)
 │       ├── repositories/
@@ -81,7 +81,8 @@ Myna/
 │   └── index.html
 │
 ├── tests/
-│   └── test_core_services.py
+│   ├── test_core_services.py   ← 8 tests de dominio
+│   └── test_api.py             ← 11 tests de integración API (TestClient)
 │
 └── docs/
     ├── agent.md      ← Arquitectura del AgentManager y DataPrepAgent
@@ -130,7 +131,7 @@ Ver documentación detallada en [`docs/agent.md`](docs/agent.md) y [`docs/skills
 ## 🧪 Testing
 
 ```bash
-PYTHONPATH=. pytest tests/
+PYTHONPATH=. pytest tests/ -v
 ```
 
 Los tests cubren comportamiento de dominio (sin mocks de frameworks). Esto permite refactors estructurales sin romper la lógica central.
@@ -174,8 +175,12 @@ Ver [`docs/BACKLOG.md`](docs/BACKLOG.md) para el plan técnico priorizado. Próx
 
 - [ ] Adaptador S3 para persistencia real en producción
 - [ ] Patrón Strategy para limpieza y escalado (eliminar `if/else` de strings mágicos)
-- [ ] Test de integración end-to-end (Upload → Clean → Scale → Cluster)
+- [x] Test de integración end-to-end (Upload → Clean → Scale → Cluster → Outliers → Export → Dedup)
 - [ ] Manejo asíncrono de operaciones pesadas (Job Queue)
+- [x] Router refactorizado: todos los endpoints usan AgentManager.execute_skill()
+- [x] Endpoints nuevos: `/api/outliers`, `/api/clean/dedup`, `/api/export`
+- [x] Stats endpoint retorna JSON estructurado en vez de Markdown
+- [x] FileSystemAdapter acepta BytesIO in-memory (fix upload vía FastAPI)
 
 ---
 
