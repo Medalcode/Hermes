@@ -171,6 +171,7 @@ Abrir en el navegador: **http://localhost:8000**
 
 | Versión | Cambios principales |
 |---|---|
+| **V7.0** | Despliegue en Vercel con `uv`, pyproject.toml y frontend en React (Vite) integrado (06/06/2026) |
 | **V6.1** | Vercel stateless mode (df_json + IndexedDB) + AgentManager router (08/04/2026) |
 | **V6.0** | Super-Skills paramétricas, AgentManager integrado, eliminación de código legacy (Gradio) |
 | **V5.1** | Repository Pattern, soporte multi-sesión con cookies |
