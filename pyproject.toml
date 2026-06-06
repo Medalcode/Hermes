@@ -1,3 +1,19 @@
+[project]
+name = "myna"
+version = "0.1.0"
+description = "Myna API"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas",
+    "numpy",
+    "openpyxl",
+    "plotly",
+    "fastapi",
+    "uvicorn",
+    "python-multipart",
+    "jinja2"
+]
+
 [tool.ruff]
 target-version = "py311"
 line-length = 100
