@@ -337,6 +337,105 @@ async function generatePlot() {
     Plotly.newPlot('mainPlot', res.data, res.layout);
 }
 
+// 7. Auto-Analyze
+async function runAutoAnalyze() {
+    const statusDiv = document.getElementById('autoAnalyzeStatus');
+    statusDiv.innerText = "Analizando dataset... 🤖";
+    const reportContainer = document.getElementById('autoAnalyzeReport');
+    reportContainer.style.display = 'none';
+    
+    const formData = new FormData();
+    const localSession = await loadLocalSession();
+    if (localSession?.df_json) formData.append('df_json', localSession.df_json);
+    
+    const res = await postData('/api/auto-analyze', formData);
+    if(res.error) { 
+        statusDiv.innerText = "Error: " + res.error; 
+        return; 
+    }
+    
+    statusDiv.innerText = "¡Análisis completado!";
+    renderAutoAnalyzeReport(res.report);
+    
+    if (res.df_json) {
+        const updatedSession = await saveLocalSession({
+            df_json: res.df_json,
+            columns: res.columns || currentColumns,
+            numeric_columns: res.numeric_columns || numericColumns,
+            shape: res.shape
+        });
+        applySessionState(updatedSession);
+    }
+}
+
+function renderAutoAnalyzeReport(report) {
+    const container = document.getElementById('autoAnalyzeReport');
+    let html = '';
+
+    // 1. Diagnóstico
+    if(report.diagnostico_dataset) {
+        const diag = report.diagnostico_dataset;
+        html += `<div class="card">
+            <h3>📊 Perfil del Dataset</h3>
+            <p><strong>Filas:</strong> ${diag.rows} | <strong>Columnas:</strong> ${diag.columns}</p>
+            <p><strong>Variables Numéricas:</strong> ${diag.numeric_columns} | <strong>Categóricas:</strong> ${diag.categorical_columns}</p>
+            <p><strong>Uso de Memoria:</strong> ${diag.memory_usage_mb} MB</p>
+        </div>`;
+    }
+
+    // 2. Problemas (Issues)
+    if(report.problemas_detectados && report.problemas_detectados.length > 0) {
+        html += `<div class="card" style="border-left: 4px solid #ff4757;">
+            <h3 style="color: #ff4757;">🚨 Problemas Detectados</h3>
+            <ul>`;
+        report.problemas_detectados.forEach(issue => {
+            html += `<li><strong>${issue.column}</strong>: ${issue.issue}</li>`;
+        });
+        html += `</ul></div>`;
+    } else {
+        html += `<div class="card" style="border-left: 4px solid #2ed573;">
+            <h3 style="color: #2ed573;">✅ Problemas Detectados</h3>
+            <p>El dataset parece estar limpio de nulos y atípicos graves.</p>
+        </div>`;
+    }
+
+    // 3. Recomendaciones de Transformación
+    if(report.transformaciones_recomendadas && report.transformaciones_recomendadas.length > 0) {
+        html += `<div class="card" style="border-left: 4px solid #ffa502;">
+            <h3 style="color: #ffa502;">💡 Sugerencias de Limpieza y Transformación</h3>
+            <ul>`;
+        report.transformaciones_recomendadas.forEach(rec => {
+            html += `<li><strong>${rec.column}:</strong> ${rec.recommendation} <em>(Razón: ${rec.reason})</em></li>`;
+        });
+        html += `</ul></div>`;
+    }
+
+    // 4. Insights de Negocio
+    if(report.conclusiones_negocio && report.conclusiones_negocio.length > 0) {
+        html += `<div class="card" style="border-left: 4px solid #3742fa; background-color: #f1f2f6;">
+            <h3 style="color: #3742fa;">🧠 Conclusiones Analíticas (Insights)</h3>
+            <ul>`;
+        report.conclusiones_negocio.forEach(insight => {
+            html += `<li>${insight}</li>`;
+        });
+        html += `</ul></div>`;
+    }
+
+    // 5. Modelos Sugeridos
+    if(report.modelos_sugeridos && report.modelos_sugeridos.length > 0) {
+        html += `<div class="card" style="border-left: 4px solid #2f3542;">
+            <h3 style="color: #2f3542;">🤖 Sugerencias de Machine Learning</h3>
+            <ul>`;
+        report.modelos_sugeridos.forEach(mod => {
+            html += `<li><strong>Tarea:</strong> ${mod.task}<br><strong>Algoritmos recomendados:</strong> ${mod.models.join(", ")}<br><em>${mod.reason}</em></li>`;
+        });
+        html += `</ul></div>`;
+    }
+
+    container.innerHTML = html;
+    container.style.display = 'flex';
+}
+
 window.addEventListener('load', async () => {
     updatePlotInputs();
     try {

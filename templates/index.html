@@ -26,6 +26,7 @@
           <li onclick="showTab('stats')">📊 Estadísticas</li>
           <li onclick="showTab('cluster')">🧠 Clustering</li>
           <li onclick="showTab('plot')">📈 Visualización</li>
+          <li onclick="showTab('auto')">🤖 Auto-Analyze</li>
         </ul>
       </nav>
 
@@ -166,6 +167,20 @@
             </button>
           </div>
           <div id="mainPlot" class="plot-container"></div>
+        </section>
+        <!-- TAB: AUTO-ANALYZE -->
+        <section id="auto" class="tab-content">
+          <h2>Analista Inteligente (Auto-Analyze)</h2>
+          <div class="card" style="text-align: center; margin-bottom: 20px;">
+            <p>Obtén un diagnóstico automático, detección de problemas, sugerencias de algoritmos y conclusiones de negocio con un solo clic.</p>
+            <br>
+            <button onclick="runAutoAnalyze()" class="btn-primary" style="font-size: 1.1em; padding: 12px 24px;">Generar Reporte Ejecutivo ✨</button>
+            <div id="autoAnalyzeStatus" class="status-msg"></div>
+          </div>
+          
+          <div id="autoAnalyzeReport" style="display: none; display: flex; flex-direction: column; gap: 20px;">
+             <!-- Report dynamically injected here -->
+          </div>
         </section>
       </main>
     </div>
