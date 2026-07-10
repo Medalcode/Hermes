@@ -1,22 +1,25 @@
-import pandas as pd
-import numpy as np
 # from scipy.stats import skew, kurtosis, shapiro (Removed for Vercel size limit)
-from typing import List, Tuple, Dict, Any
+from abc import ABC, abstractmethod
+from typing import Any
+
+import numpy as np
+import pandas as pd
+
 
 class StatisticalAnalyzer:
     """
     Domain service for performing statistical analysis on DataFrames.
     Pure logic, no UI dependencies.
     """
-    
+
     @staticmethod
-    def get_numeric_columns(df: pd.DataFrame) -> List[str]:
+    def get_numeric_columns(df: pd.DataFrame) -> list[str]:
         if df is None:
             return []
         return df.select_dtypes(include=np.number).columns.tolist()
 
     @staticmethod
-    def get_categorical_columns(df: pd.DataFrame) -> List[str]:
+    def get_categorical_columns(df: pd.DataFrame) -> list[str]:
         if df is None:
             return []
         return df.select_dtypes(include=['object', 'category', 'string']).columns.tolist()
@@ -26,7 +29,7 @@ class StatisticalAnalyzer:
         df_numeric = df.select_dtypes(include=np.number)
         if df_numeric.empty:
             return pd.DataFrame()
-            
+
         stats = df_numeric.describe().T
         stats['median'] = df_numeric.median()
         # Reorder and round
@@ -51,7 +54,7 @@ class StatisticalAnalyzer:
             return pd.DataFrame()
         return df_numeric.corr(method='pearson')
 
-    def check_normality(self, series: pd.Series) -> Tuple[bool, float]:
+    def check_normality(self, series: pd.Series) -> tuple[bool, float]:
         """
         Performs approximate normality check (Shapiro removed).
         Returns (is_normal, p_value) - Placeholder
@@ -63,29 +66,28 @@ class StatisticalAnalyzer:
             s_val = series.dropna()
             if len(s_val) < 3:
                 return False, 0.0
-            
+
             k = s_val.kurt()
             s = s_val.skew()
             is_normal = abs(k) < 2.0 and abs(s) < 2.0
             return is_normal, 1.0 if is_normal else 0.0
-        except:
+        except Exception:
             return False, 0.0
 
-from abc import ABC, abstractmethod
 
 class CleaningStrategy(ABC):
     @abstractmethod
-    def apply(self, df: pd.DataFrame, columns: List[str]) -> Tuple[pd.DataFrame, int]:
+    def apply(self, df: pd.DataFrame, columns: list[str]) -> tuple[pd.DataFrame, int]:
         pass
 
 class DropRowsStrategy(CleaningStrategy):
-    def apply(self, df: pd.DataFrame, columns: List[str]) -> Tuple[pd.DataFrame, int]:
+    def apply(self, df: pd.DataFrame, columns: list[str]) -> tuple[pd.DataFrame, int]:
         initial_rows = len(df)
         df_clean = df.dropna(subset=columns)
         return df_clean, initial_rows - len(df_clean)
 
 class ImputationStrategy(CleaningStrategy, ABC):
-    def apply(self, df: pd.DataFrame, columns: List[str]) -> Tuple[pd.DataFrame, int]:
+    def apply(self, df: pd.DataFrame, columns: list[str]) -> tuple[pd.DataFrame, int]:
         df_clean = df.copy()
         affected_count = 0
         for col in columns:
@@ -98,7 +100,7 @@ class ImputationStrategy(CleaningStrategy, ABC):
                     df_clean[col] = df_clean[col].fillna(val)
                     affected_count += n_nulls
         return df_clean, affected_count
-        
+
     @abstractmethod
     def calculate_value(self, series: pd.Series) -> Any:
         pass
@@ -157,16 +159,16 @@ class CleaningStrategyFactory:
 
 class DataCleaner:
     """Domain service for handling Missing Values using Strategy Pattern."""
-    
+
     @staticmethod
-    def handle_nulls(df: pd.DataFrame, columns: List[str], method: str) -> Tuple[pd.DataFrame, int]:
+    def handle_nulls(df: pd.DataFrame, columns: list[str], method: str) -> tuple[pd.DataFrame, int]:
         """
         Returns (processed_df, affected_rows_count).
         Does NOT mutate input df in-place.
         """
         if df is None:
             return None, 0
-            
+
         total_nulls_start = df[columns].isnull().sum().sum()
         if total_nulls_start == 0:
             return df.copy(), 0
@@ -174,18 +176,18 @@ class DataCleaner:
         strategy = CleaningStrategyFactory.get_strategy(method)
         if not strategy:
             return df.copy(), 0
-            
+
         return strategy.apply(df, columns)
 
 # from sklearn.preprocessing import MinMaxScaler, StandardScaler (Removed for Vercel)
 
 class ScalingStrategy(ABC):
     @abstractmethod
-    def apply(self, df: pd.DataFrame, columns: List[str]) -> pd.DataFrame:
+    def apply(self, df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
         pass
 
 class MinMaxScalingStrategy(ScalingStrategy):
-    def apply(self, df: pd.DataFrame, columns: List[str]) -> pd.DataFrame:
+    def apply(self, df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
         df_scaled = df.copy()
         for col in columns:
             if col in df_scaled.columns and pd.api.types.is_numeric_dtype(df_scaled[col]):
@@ -199,7 +201,7 @@ class MinMaxScalingStrategy(ScalingStrategy):
         return df_scaled
 
 class ZScoreScalingStrategy(ScalingStrategy):
-    def apply(self, df: pd.DataFrame, columns: List[str]) -> pd.DataFrame:
+    def apply(self, df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
         df_scaled = df.copy()
         for col in columns:
             if col in df_scaled.columns and pd.api.types.is_numeric_dtype(df_scaled[col]):
@@ -223,53 +225,52 @@ class ScalingStrategyFactory:
 
 class DataScaler:
     """Domain service for Normalization and Standardization using Strategy Pattern."""
-    
+
     @staticmethod
-    def apply_scaling(df: pd.DataFrame, columns: List[str], method: str) -> pd.DataFrame:
+    def apply_scaling(df: pd.DataFrame, columns: list[str], method: str) -> pd.DataFrame:
         if df is None:
             return None
-            
+
         strategy = ScalingStrategyFactory.get_strategy(method)
         if not strategy:
             return df.copy()
-            
+
         return strategy.apply(df, columns)
 
 class OutlierManager:
     """Domain service for Outlier Detection and Treatment (IQR)."""
-    
+
     @staticmethod
-    def detect_and_treat(df: pd.DataFrame, column: str, treatment: str) -> Tuple[pd.DataFrame, int, str]:
+    def detect_and_treat(df: pd.DataFrame, column: str, treatment: str) -> tuple[pd.DataFrame, int, str]:
         """
         Returns (processed_df, num_outliers_detected, message_detail).
         """
         if df is None or column not in df.columns:
             return df, 0, "Error: Columna no encontrada"
-            
+
         df_out = df.copy()
-        
-        # IQR Calculation
-        Q1 = df_out[column].quantile(0.25)
-        Q3 = df_out[column].quantile(0.75)
-        IQR = Q3 - Q1
-        lower_bound = Q1 - 1.5 * IQR
-        upper_bound = Q3 + 1.5 * IQR
-        
+
+        q1 = df_out[column].quantile(0.25)
+        q3 = df_out[column].quantile(0.75)
+        iqr = q3 - q1
+        lower_bound = q1 - 1.5 * iqr
+        upper_bound = q3 + 1.5 * iqr
+
         outliers_mask = (df_out[column] < lower_bound) | (df_out[column] > upper_bound)
         num_outliers = outliers_mask.sum()
-        
+
         if num_outliers == 0:
             return df_out, 0, "No se detectaron outliers."
-            
+
         if treatment == "Eliminar registros":
             df_out = df_out[~outliers_mask]
             return df_out, num_outliers, "Eliminados."
-            
+
         elif treatment == "Capping (Winsorización)":
             df_out[column] = np.where(df_out[column] > upper_bound, upper_bound, df_out[column])
             df_out[column] = np.where(df_out[column] < lower_bound, lower_bound, df_out[column])
             return df_out, num_outliers, "Winsorizados."
-            
+
         else: # Informar
             return df_out, num_outliers, "Solo detectados (sin cambios)."
 
@@ -277,51 +278,51 @@ class OutlierManager:
 
 class Clusterer:
     """Domain service for Unsupervised Learning (Clustering)."""
-    
+
     @staticmethod
-    def kmeans(df: pd.DataFrame, columns: List[str], k: int) -> Tuple[pd.DataFrame, str]:
+    def kmeans(df: pd.DataFrame, columns: list[str], k: int) -> tuple[pd.DataFrame, str]:
         if df is None or not columns:
             return df, "Error: Datos o columnas faltantes."
-        
+
         try:
             df_clustered = df.copy()
-            X = df_clustered[columns].dropna().astype(float).values
-            
-            if len(X) < k:
+            x = df_clustered[columns].dropna().astype(float).values
+
+            if len(x) < k:
                 return df, f"Error: No hay suficientes datos para {k} clusters."
-                
+
             # Simple manual KMeans using numpy
             # Initialize centroids randomly
             np.random.seed(42)
-            idx = np.random.choice(len(X), k, replace=False)
-            centroids = X[idx]
-            
-            clusters = np.zeros(len(X))
-            
+            idx = np.random.choice(len(x), k, replace=False)
+            centroids = x[idx]
+
+            clusters = np.zeros(len(x))
+
             # Simple iterations (max 10 for performance/simplicity)
             for _ in range(10):
                 # Distance matrix: (n_samples, k)
                 # Compute distance from each point to each centroid
-                dists = np.linalg.norm(X[:, np.newaxis] - centroids, axis=2)
-                
+                dists = np.linalg.norm(x[:, np.newaxis] - centroids, axis=2)
+
                 # Assign to nearest centroid
                 new_clusters = np.argmin(dists, axis=1)
-                
+
                 if np.array_equal(clusters, new_clusters):
                     break
-                    
+
                 clusters = new_clusters
-                
+
                 # Update centroids
                 for i in range(k):
-                    points = X[clusters == i]
+                    points = x[clusters == i]
                     if len(points) > 0:
                         centroids[i] = points.mean(axis=0)
-            
-            
+
+
             df_clustered.loc[df_clustered[columns].dropna().index, 'Cluster'] = clusters
             df_clustered['Cluster'] = df_clustered['Cluster'].fillna(-1).astype(int)
-            
+
             return df_clustered, f"Clustering completado (K={k}) - NativeMode."
         except Exception as e:
             return df, f"Error clustering: {str(e)}"

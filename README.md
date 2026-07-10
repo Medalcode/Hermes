@@ -86,6 +86,9 @@ Myna/
 │   ├── test_core_services.py   ← 8 tests de dominio
 │   └── test_api.py             ← 11 tests de integración API (TestClient)
 │
+├── graphify-out/               ← Knowledge graph (199 nodos, 198 aristas)
+├── .agents/                    ← skills.sh skills (tdd)
+│
 └── docs/
     ├── agent.md      ← Arquitectura del AgentManager y DataPrepAgent
     ├── skills.md     ← Catálogo de Super-Skills, convenciones, fusiones
@@ -141,6 +144,14 @@ PYTHONPATH=. pytest tests/ -v
 ```
 
 Los tests cubren comportamiento de dominio (sin mocks de frameworks). Esto permite refactors estructurales sin romper la lógica central.
+
+## Knowledge Graph
+
+`graphify-out/graph.json` contiene **199 nodos y 198 aristas** del AST del proyecto, permitiendo a agentes AI comprender la arquitectura sin escanear archivos.
+
+## Skills
+
+- **tdd** (skills.sh) — patrones de testing para mantener y expandir la cobertura (21 tests)
 
 ## 🔐 API Key Authentication
 

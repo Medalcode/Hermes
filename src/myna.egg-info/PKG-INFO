@@ -1,0 +1,15 @@
+Metadata-Version: 2.4
+Name: myna
+Version: 0.1.0
+Summary: Myna API
+Requires-Python: >=3.11
+License-File: LICENSE
+Requires-Dist: pandas
+Requires-Dist: numpy
+Requires-Dist: openpyxl
+Requires-Dist: plotly
+Requires-Dist: fastapi
+Requires-Dist: uvicorn
+Requires-Dist: python-multipart
+Requires-Dist: jinja2
+Dynamic: license-file

@@ -1,9 +1,8 @@
 import io
 import json
-from typing import Optional
 
 import pandas as pd
-from fastapi import Depends, FastAPI, File, Form, Request, Response, UploadFile
+from fastapi import Depends, FastAPI, File, Form, HTTPException, Request, Response, UploadFile
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -16,7 +15,6 @@ from src.adapters.api.dependencies import (
     save_analysis_session,
     verify_api_key,
 )
-from starlette.datastructures import URL
 from src.adapters.visualization.plotter import PlottingAdapter
 from src.core.agents.base import AgentManager
 from src.core.domain_services import StatisticalAnalyzer
@@ -299,7 +297,7 @@ async def export_data(
     format_type: str = Form("CSV"),
     df_json: str | None = Form(None),
     session: AnalysisSession = Depends(get_analysis_session),
-    session_id: str = Depends(get_session_id),
+    _session_id: str = Depends(get_session_id),
     agent_manager: AgentManager = Depends(get_agent_manager),
 ):
     current_df, error_response = _get_request_df(session, df_json)
@@ -315,8 +313,8 @@ async def export_data(
 
 @app.post("/api/auto-analyze")
 async def auto_analyze_endpoint(
-    df_json: Optional[str] = Form(None),
-    target_col: Optional[str] = Form(None),
+    df_json: str | None = Form(None),
+    target_col: str | None = Form(None),
     session: AnalysisSession = Depends(get_analysis_session),
     session_id: str = Depends(get_session_id),
     agent_manager: AgentManager = Depends(get_agent_manager),
@@ -327,11 +325,11 @@ async def auto_analyze_endpoint(
     if current_df is None:
         return JSONResponse(status_code=400, content={"error": "No dataframe"})
     session.current_df = current_df
-    
+
     result = agent_manager.execute_skill("auto_analyze", session, target_col=target_col)
     if result.changes.get("error"):
         return JSONResponse(status_code=400, content={"error": result.changes["error"]})
-        
+
     save_analysis_session(session_id, session)
     return {
         "report": result.changes.get("result", {}),

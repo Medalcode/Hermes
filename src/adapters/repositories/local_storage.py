@@ -30,14 +30,14 @@ class LocalFileSessionRepository(SessionRepository):
         session = AnalysisSession()
         # Reconstruct logs
         if "logs" in data:
-            session.logs = [OperationLog(l["message"]) for l in data["logs"]]
+            session.logs = [OperationLog(log["message"]) for log in data["logs"]]
 
         return session
 
     def save_session(self, session: AnalysisSession, session_id: str) -> None:
         path = self._get_path(session_id)
         data = {
-            "logs": [{"message": l.message} for l in session.logs]
+            "logs": [{"message": log.message} for log in session.logs]
         }
         with open(path, "w") as f:
             json.dump(data, f)

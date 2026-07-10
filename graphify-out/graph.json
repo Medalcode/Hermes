@@ -1,0 +1,2389 @@
+{
+  "nodes": [
+    {
+      "id": 1,
+      "name": "Myna",
+      "type": "module",
+      "file": null,
+      "doc": null
+    },
+    {
+      "id": 2,
+      "name": "src/adapters.api.dataframe_json",
+      "type": "module",
+      "file": "src/adapters/api/dataframe_json.py",
+      "doc": null
+    },
+    {
+      "id": 3,
+      "name": "src/adapters.api.dataframe_json.dataframe_to_split_json",
+      "type": "function",
+      "file": "src/adapters/api/dataframe_json.py",
+      "doc": ""
+    },
+    {
+      "id": 4,
+      "name": "src/adapters.api.dataframe_json.dataframe_from_split_json",
+      "type": "function",
+      "file": "src/adapters/api/dataframe_json.py",
+      "doc": ""
+    },
+    {
+      "id": 5,
+      "name": "src/adapters.api.dependencies",
+      "type": "module",
+      "file": "src/adapters/api/dependencies.py",
+      "doc": null
+    },
+    {
+      "id": 6,
+      "name": "src/adapters.api.dependencies.in_vercel_runtime",
+      "type": "function",
+      "file": "src/adapters/api/dependencies.py",
+      "doc": ""
+    },
+    {
+      "id": 7,
+      "name": "src/adapters.api.dependencies.save_analysis_session",
+      "type": "function",
+      "file": "src/adapters/api/dependencies.py",
+      "doc": ""
+    },
+    {
+      "id": 8,
+      "name": "src/adapters.api.dependencies.get_agent_manager",
+      "type": "function",
+      "file": "src/adapters/api/dependencies.py",
+      "doc": ""
+    },
+    {
+      "id": 9,
+      "name": "src/adapters.api.router",
+      "type": "module",
+      "file": "src/adapters/api/router.py",
+      "doc": null
+    },
+    {
+      "id": 10,
+      "name": "src/adapters.api.router._get_request_df",
+      "type": "function",
+      "file": "src/adapters/api/router.py",
+      "doc": ""
+    },
+    {
+      "id": 11,
+      "name": "src/adapters.api.router._build_df_response",
+      "type": "function",
+      "file": "src/adapters/api/router.py",
+      "doc": ""
+    },
+    {
+      "id": 12,
+      "name": "src/adapters.fs.file_io",
+      "type": "module",
+      "file": "src/adapters/fs/file_io.py",
+      "doc": null
+    },
+    {
+      "id": 13,
+      "name": "src/adapters.fs.file_io.FileSystemAdapter",
+      "type": "class",
+      "file": "src/adapters/fs/file_io.py",
+      "doc": "Driven Adapter for File I/O.\nShields the Core from file format details and path handling."
+    },
+    {
+      "id": 14,
+      "name": "src/adapters.fs.file_io.FileSystemAdapter.load_file",
+      "type": "method",
+      "file": "src/adapters/fs/file_io.py",
+      "doc": null
+    },
+    {
+      "id": 15,
+      "name": "src/adapters.fs.file_io.FileSystemAdapter.export_file",
+      "type": "method",
+      "file": "src/adapters/fs/file_io.py",
+      "doc": null
+    },
+    {
+      "id": 16,
+      "name": "src/adapters.fs.file_io.FileSystemAdapter.save_report",
+      "type": "method",
+      "file": "src/adapters/fs/file_io.py",
+      "doc": null
+    },
+    {
+      "id": 17,
+      "name": "src/adapters.fs.file_io.load_file",
+      "type": "function",
+      "file": "src/adapters/fs/file_io.py",
+      "doc": "Loads a file (CSV or Excel) into a DataFrame.\nAccepts a file path (str/Path) or a file-like object (BytesIO, etc.).\nReturns (DataFrame, ErrorMessage)."
+    },
+    {
+      "id": 18,
+      "name": "src/adapters.fs.file_io.export_file",
+      "type": "function",
+      "file": "src/adapters/fs/file_io.py",
+      "doc": "Saves DataFrame to disk.\nReturns (file_path, error_message)."
+    },
+    {
+      "id": 19,
+      "name": "src/adapters.fs.file_io.save_report",
+      "type": "function",
+      "file": "src/adapters/fs/file_io.py",
+      "doc": ""
+    },
+    {
+      "id": 20,
+      "name": "src/adapters.repositories.local_storage",
+      "type": "module",
+      "file": "src/adapters/repositories/local_storage.py",
+      "doc": null
+    },
+    {
+      "id": 21,
+      "name": "src/adapters.repositories.local_storage.LocalFileSessionRepository",
+      "type": "class",
+      "file": "src/adapters/repositories/local_storage.py",
+      "doc": ""
+    },
+    {
+      "id": 22,
+      "name": "src/adapters.repositories.local_storage.LocalFileSessionRepository.__init__",
+      "type": "method",
+      "file": "src/adapters/repositories/local_storage.py",
+      "doc": null
+    },
+    {
+      "id": 23,
+      "name": "src/adapters.repositories.local_storage.LocalFileSessionRepository._get_path",
+      "type": "method",
+      "file": "src/adapters/repositories/local_storage.py",
+      "doc": null
+    },
+    {
+      "id": 24,
+      "name": "src/adapters.repositories.local_storage.LocalFileSessionRepository.get_session",
+      "type": "method",
+      "file": "src/adapters/repositories/local_storage.py",
+      "doc": null
+    },
+    {
+      "id": 25,
+      "name": "src/adapters.repositories.local_storage.LocalFileSessionRepository.save_session",
+      "type": "method",
+      "file": "src/adapters/repositories/local_storage.py",
+      "doc": null
+    },
+    {
+      "id": 26,
+      "name": "src/adapters.repositories.local_storage.LocalFileDataRepository",
+      "type": "class",
+      "file": "src/adapters/repositories/local_storage.py",
+      "doc": ""
+    },
+    {
+      "id": 27,
+      "name": "src/adapters.repositories.local_storage.LocalFileDataRepository.__init__",
+      "type": "method",
+      "file": "src/adapters/repositories/local_storage.py",
+      "doc": null
+    },
+    {
+      "id": 28,
+      "name": "src/adapters.repositories.local_storage.LocalFileDataRepository._get_path",
+      "type": "method",
+      "file": "src/adapters/repositories/local_storage.py",
+      "doc": null
+    },
+    {
+      "id": 29,
+      "name": "src/adapters.repositories.local_storage.LocalFileDataRepository.save_dataframe",
+      "type": "method",
+      "file": "src/adapters/repositories/local_storage.py",
+      "doc": null
+    },
+    {
+      "id": 30,
+      "name": "src/adapters.repositories.local_storage.LocalFileDataRepository.load_dataframe",
+      "type": "method",
+      "file": "src/adapters/repositories/local_storage.py",
+      "doc": null
+    },
+    {
+      "id": 31,
+      "name": "src/adapters.repositories.local_storage.__init__",
+      "type": "function",
+      "file": "src/adapters/repositories/local_storage.py",
+      "doc": ""
+    },
+    {
+      "id": 32,
+      "name": "src/adapters.repositories.local_storage._get_path",
+      "type": "function",
+      "file": "src/adapters/repositories/local_storage.py",
+      "doc": ""
+    },
+    {
+      "id": 33,
+      "name": "src/adapters.repositories.local_storage.get_session",
+      "type": "function",
+      "file": "src/adapters/repositories/local_storage.py",
+      "doc": ""
+    },
+    {
+      "id": 34,
+      "name": "src/adapters.repositories.local_storage.save_session",
+      "type": "function",
+      "file": "src/adapters/repositories/local_storage.py",
+      "doc": ""
+    },
+    {
+      "id": 35,
+      "name": "src/adapters.repositories.local_storage.save_dataframe",
+      "type": "function",
+      "file": "src/adapters/repositories/local_storage.py",
+      "doc": ""
+    },
+    {
+      "id": 36,
+      "name": "src/adapters.repositories.local_storage.load_dataframe",
+      "type": "function",
+      "file": "src/adapters/repositories/local_storage.py",
+      "doc": ""
+    },
+    {
+      "id": 37,
+      "name": "src/adapters.visualization.plotter",
+      "type": "module",
+      "file": "src/adapters/visualization/plotter.py",
+      "doc": null
+    },
+    {
+      "id": 38,
+      "name": "src/adapters.visualization.plotter.PlottingAdapter",
+      "type": "class",
+      "file": "src/adapters/visualization/plotter.py",
+      "doc": "Driven Adapter for Visualization using Plotly.\nGenerates interactive Figure objects."
+    },
+    {
+      "id": 39,
+      "name": "src/adapters.visualization.plotter.PlottingAdapter.plot_correlation_heatmap",
+      "type": "method",
+      "file": "src/adapters/visualization/plotter.py",
+      "doc": null
+    },
+    {
+      "id": 40,
+      "name": "src/adapters.visualization.plotter.PlottingAdapter.plot_distribution",
+      "type": "method",
+      "file": "src/adapters/visualization/plotter.py",
+      "doc": null
+    },
+    {
+      "id": 41,
+      "name": "src/adapters.visualization.plotter.PlottingAdapter.plot_regression",
+      "type": "method",
+      "file": "src/adapters/visualization/plotter.py",
+      "doc": null
+    },
+    {
+      "id": 42,
+      "name": "src/adapters.visualization.plotter.PlottingAdapter.plot_clusters",
+      "type": "method",
+      "file": "src/adapters/visualization/plotter.py",
+      "doc": null
+    },
+    {
+      "id": 43,
+      "name": "src/adapters.visualization.plotter.plot_correlation_heatmap",
+      "type": "function",
+      "file": "src/adapters/visualization/plotter.py",
+      "doc": ""
+    },
+    {
+      "id": 44,
+      "name": "src/adapters.visualization.plotter.plot_distribution",
+      "type": "function",
+      "file": "src/adapters/visualization/plotter.py",
+      "doc": ""
+    },
+    {
+      "id": 45,
+      "name": "src/adapters.visualization.plotter.plot_regression",
+      "type": "function",
+      "file": "src/adapters/visualization/plotter.py",
+      "doc": ""
+    },
+    {
+      "id": 46,
+      "name": "src/adapters.visualization.plotter.plot_clusters",
+      "type": "function",
+      "file": "src/adapters/visualization/plotter.py",
+      "doc": ""
+    },
+    {
+      "id": 47,
+      "name": "src/core.agents.base",
+      "type": "module",
+      "file": "src/core/agents/base.py",
+      "doc": null
+    },
+    {
+      "id": 48,
+      "name": "src/core.agents.base.SkillResult",
+      "type": "class",
+      "file": "src/core/agents/base.py",
+      "doc": ""
+    },
+    {
+      "id": 49,
+      "name": "src/core.agents.base.register_skill",
+      "type": "function",
+      "file": "src/core/agents/base.py",
+      "doc": ""
+    },
+    {
+      "id": 50,
+      "name": "src/core.agents.base.AgentManager",
+      "type": "class",
+      "file": "src/core/agents/base.py",
+      "doc": "Manager ligero para registrar y ejecutar skills por nombre.\n\nUso inicial: instanciar un singleton en `src/adapters/api/dependencies.py` y usar\n`agent_manager.execute_skill(skill_id, session, **params)"
+    },
+    {
+      "id": 51,
+      "name": "src/core.agents.base.AgentManager.__init__",
+      "type": "method",
+      "file": "src/core/agents/base.py",
+      "doc": null
+    },
+    {
+      "id": 52,
+      "name": "src/core.agents.base.AgentManager.register",
+      "type": "method",
+      "file": "src/core/agents/base.py",
+      "doc": null
+    },
+    {
+      "id": 53,
+      "name": "src/core.agents.base.AgentManager.list_skills",
+      "type": "method",
+      "file": "src/core/agents/base.py",
+      "doc": null
+    },
+    {
+      "id": 54,
+      "name": "src/core.agents.base.AgentManager.execute_skill",
+      "type": "method",
+      "file": "src/core/agents/base.py",
+      "doc": null
+    },
+    {
+      "id": 55,
+      "name": "src/core.agents.base.decorator",
+      "type": "function",
+      "file": "src/core/agents/base.py",
+      "doc": ""
+    },
+    {
+      "id": 56,
+      "name": "src/core.agents.base.__init__",
+      "type": "function",
+      "file": "src/core/agents/base.py",
+      "doc": ""
+    },
+    {
+      "id": 57,
+      "name": "src/core.agents.base.register",
+      "type": "function",
+      "file": "src/core/agents/base.py",
+      "doc": ""
+    },
+    {
+      "id": 58,
+      "name": "src/core.agents.base.list_skills",
+      "type": "function",
+      "file": "src/core/agents/base.py",
+      "doc": ""
+    },
+    {
+      "id": 59,
+      "name": "src/core.agents.base.execute_skill",
+      "type": "function",
+      "file": "src/core/agents/base.py",
+      "doc": ""
+    },
+    {
+      "id": 60,
+      "name": "src/core.agents.skills.auto_analyze_skills",
+      "type": "module",
+      "file": "src/core/agents/skills/auto_analyze_skills.py",
+      "doc": null
+    },
+    {
+      "id": 61,
+      "name": "src/core.agents.skills.auto_analyze_skills.profile_dataset",
+      "type": "function",
+      "file": "src/core/agents/skills/auto_analyze_skills.py",
+      "doc": ""
+    },
+    {
+      "id": 62,
+      "name": "src/core.agents.skills.auto_analyze_skills.detect_issues",
+      "type": "function",
+      "file": "src/core/agents/skills/auto_analyze_skills.py",
+      "doc": ""
+    },
+    {
+      "id": 63,
+      "name": "src/core.agents.skills.auto_analyze_skills.recommend_transformations",
+      "type": "function",
+      "file": "src/core/agents/skills/auto_analyze_skills.py",
+      "doc": ""
+    },
+    {
+      "id": 64,
+      "name": "src/core.agents.skills.auto_analyze_skills.recommend_models",
+      "type": "function",
+      "file": "src/core/agents/skills/auto_analyze_skills.py",
+      "doc": ""
+    },
+    {
+      "id": 65,
+      "name": "src/core.agents.skills.auto_analyze_skills.generate_business_insights",
+      "type": "function",
+      "file": "src/core/agents/skills/auto_analyze_skills.py",
+      "doc": ""
+    },
+    {
+      "id": 66,
+      "name": "src/core.agents.skills.auto_analyze_skills.auto_analyze",
+      "type": "function",
+      "file": "src/core/agents/skills/auto_analyze_skills.py",
+      "doc": ""
+    },
+    {
+      "id": 67,
+      "name": "src/core.agents.skills.clean_skills",
+      "type": "module",
+      "file": "src/core/agents/skills/clean_skills.py",
+      "doc": null
+    },
+    {
+      "id": 68,
+      "name": "src/core.agents.skills.clean_skills.clean_nulls",
+      "type": "function",
+      "file": "src/core/agents/skills/clean_skills.py",
+      "doc": ""
+    },
+    {
+      "id": 69,
+      "name": "src/core.agents.skills.clean_skills.drop_duplicates",
+      "type": "function",
+      "file": "src/core/agents/skills/clean_skills.py",
+      "doc": ""
+    },
+    {
+      "id": 70,
+      "name": "src/core.agents.skills.io_skills",
+      "type": "module",
+      "file": "src/core/agents/skills/io_skills.py",
+      "doc": null
+    },
+    {
+      "id": 71,
+      "name": "src/core.agents.skills.io_skills.load_file",
+      "type": "function",
+      "file": "src/core/agents/skills/io_skills.py",
+      "doc": ""
+    },
+    {
+      "id": 72,
+      "name": "src/core.agents.skills.io_skills.export_file",
+      "type": "function",
+      "file": "src/core/agents/skills/io_skills.py",
+      "doc": ""
+    },
+    {
+      "id": 73,
+      "name": "src/core.agents.skills.ml_skills",
+      "type": "module",
+      "file": "src/core/agents/skills/ml_skills.py",
+      "doc": null
+    },
+    {
+      "id": 74,
+      "name": "src/core.agents.skills.ml_skills.kmeans_cluster",
+      "type": "function",
+      "file": "src/core/agents/skills/ml_skills.py",
+      "doc": ""
+    },
+    {
+      "id": 75,
+      "name": "src/core.agents.skills.stats_skills",
+      "type": "module",
+      "file": "src/core/agents/skills/stats_skills.py",
+      "doc": null
+    },
+    {
+      "id": 76,
+      "name": "src/core.agents.skills.stats_skills.compute_stats",
+      "type": "function",
+      "file": "src/core/agents/skills/stats_skills.py",
+      "doc": "Super-Skill param\u00e9trica.\nPar\u00e1metros:\n    stat_type:\n        \"descriptive\"        \u2192 describe() extendido con mediana\n        \"correlation\"        \u2192 matriz de correlaci\u00f3n de Pearson\n        \"distributio"
+    },
+    {
+      "id": 77,
+      "name": "src/core.agents.skills.transform_skills",
+      "type": "module",
+      "file": "src/core/agents/skills/transform_skills.py",
+      "doc": null
+    },
+    {
+      "id": 78,
+      "name": "src/core.agents.skills.transform_skills.scale_columns",
+      "type": "function",
+      "file": "src/core/agents/skills/transform_skills.py",
+      "doc": "Par\u00e1metros:\n    columns: lista de columnas a escalar.\n    method: \"Min-Max\" | \"Z-Score\""
+    },
+    {
+      "id": 79,
+      "name": "src/core.agents.skills.transform_skills.encode_categoricals",
+      "type": "function",
+      "file": "src/core/agents/skills/transform_skills.py",
+      "doc": "Par\u00e1metros:\n    columns: lista de columnas categ\u00f3ricas a codificar.\n    method: \"one-hot\" (pd.get_dummies) | \"label\" (pd.factorize)\n\nPrincipio de reutilizaci\u00f3n: un solo skill con `method` como discrim"
+    },
+    {
+      "id": 80,
+      "name": "src/core.agents.skills.visualization_skills",
+      "type": "module",
+      "file": "src/core/agents/skills/visualization_skills.py",
+      "doc": null
+    },
+    {
+      "id": 81,
+      "name": "src/core.agents.skills.visualization_skills.plot",
+      "type": "function",
+      "file": "src/core/agents/skills/visualization_skills.py",
+      "doc": "Super-Skill param\u00e9trica de visualizaci\u00f3n.\nPar\u00e1metros:\n    type:  tipo de gr\u00e1fico (discriminador)\n    col:   columna para distribuci\u00f3n\n    x, y:  columnas para regresi\u00f3n o clusters"
+    },
+    {
+      "id": 82,
+      "name": "src/core.domain_services",
+      "type": "module",
+      "file": "src/core/domain_services.py",
+      "doc": null
+    },
+    {
+      "id": 83,
+      "name": "src/core.domain_services.StatisticalAnalyzer",
+      "type": "class",
+      "file": "src/core/domain_services.py",
+      "doc": "Domain service for performing statistical analysis on DataFrames.\nPure logic, no UI dependencies."
+    },
+    {
+      "id": 84,
+      "name": "src/core.domain_services.StatisticalAnalyzer.get_numeric_columns",
+      "type": "method",
+      "file": "src/core/domain_services.py",
+      "doc": null
+    },
+    {
+      "id": 85,
+      "name": "src/core.domain_services.StatisticalAnalyzer.get_categorical_columns",
+      "type": "method",
+      "file": "src/core/domain_services.py",
+      "doc": null
+    },
+    {
+      "id": 86,
+      "name": "src/core.domain_services.StatisticalAnalyzer.calculate_descriptive_stats",
+      "type": "method",
+      "file": "src/core/domain_services.py",
+      "doc": null
+    },
+    {
+      "id": 87,
+      "name": "src/core.domain_services.StatisticalAnalyzer.calculate_distribution_shape",
+      "type": "method",
+      "file": "src/core/domain_services.py",
+      "doc": null
+    },
+    {
+      "id": 88,
+      "name": "src/core.domain_services.StatisticalAnalyzer.calculate_correlation_matrix",
+      "type": "method",
+      "file": "src/core/domain_services.py",
+      "doc": null
+    },
+    {
+      "id": 89,
+      "name": "src/core.domain_services.StatisticalAnalyzer.check_normality",
+      "type": "method",
+      "file": "src/core/domain_services.py",
+      "doc": null
+    },
+    {
+      "id": 90,
+      "name": "src/core.domain_services.CleaningStrategy",
+      "type": "class",
+      "file": "src/core/domain_services.py",
+      "doc": ""
+    },
+    {
+      "id": 91,
+      "name": "src/core.domain_services.CleaningStrategy.apply",
+      "type": "method",
+      "file": "src/core/domain_services.py",
+      "doc": null
+    },
+    {
+      "id": 92,
+      "name": "src/core.domain_services.DropRowsStrategy",
+      "type": "class",
+      "file": "src/core/domain_services.py",
+      "doc": ""
+    },
+    {
+      "id": 93,
+      "name": "src/core.domain_services.DropRowsStrategy.apply",
+      "type": "method",
+      "file": "src/core/domain_services.py",
+      "doc": null
+    },
+    {
+      "id": 94,
+      "name": "src/core.domain_services.ImputationStrategy",
+      "type": "class",
+      "file": "src/core/domain_services.py",
+      "doc": ""
+    },
+    {
+      "id": 95,
+      "name": "src/core.domain_services.ImputationStrategy.apply",
+      "type": "method",
+      "file": "src/core/domain_services.py",
+      "doc": null
+    },
+    {
+      "id": 96,
+      "name": "src/core.domain_services.ImputationStrategy.calculate_value",
+      "type": "method",
+      "file": "src/core/domain_services.py",
+      "doc": null
+    },
+    {
+      "id": 97,
+      "name": "src/core.domain_services.MeanImputationStrategy",
+      "type": "class",
+      "file": "src/core/domain_services.py",
+      "doc": ""
+    },
+    {
+      "id": 98,
+      "name": "src/core.domain_services.MeanImputationStrategy.calculate_value",
+      "type": "method",
+      "file": "src/core/domain_services.py",
+      "doc": null
+    },
+    {
+      "id": 99,
+      "name": "src/core.domain_services.MedianImputationStrategy",
+      "type": "class",
+      "file": "src/core/domain_services.py",
+      "doc": ""
+    },
+    {
+      "id": 100,
+      "name": "src/core.domain_services.MedianImputationStrategy.calculate_value",
+      "type": "method",
+      "file": "src/core/domain_services.py",
+      "doc": null
+    },
+    {
+      "id": 101,
+      "name": "src/core.domain_services.MaxImputationStrategy",
+      "type": "class",
+      "file": "src/core/domain_services.py",
+      "doc": ""
+    },
+    {
+      "id": 102,
+      "name": "src/core.domain_services.MaxImputationStrategy.calculate_value",
+      "type": "method",
+      "file": "src/core/domain_services.py",
+      "doc": null
+    },
+    {
+      "id": 103,
+      "name": "src/core.domain_services.MinImputationStrategy",
+      "type": "class",
+      "file": "src/core/domain_services.py",
+      "doc": ""
+    },
+    {
+      "id": 104,
+      "name": "src/core.domain_services.MinImputationStrategy.calculate_value",
+      "type": "method",
+      "file": "src/core/domain_services.py",
+      "doc": null
+    },
+    {
+      "id": 105,
+      "name": "src/core.domain_services.ZeroImputationStrategy",
+      "type": "class",
+      "file": "src/core/domain_services.py",
+      "doc": ""
+    },
+    {
+      "id": 106,
+      "name": "src/core.domain_services.ZeroImputationStrategy.calculate_value",
+      "type": "method",
+      "file": "src/core/domain_services.py",
+      "doc": null
+    },
+    {
+      "id": 107,
+      "name": "src/core.domain_services.ModeImputationStrategy",
+      "type": "class",
+      "file": "src/core/domain_services.py",
+      "doc": ""
+    },
+    {
+      "id": 108,
+      "name": "src/core.domain_services.ModeImputationStrategy.calculate_value",
+      "type": "method",
+      "file": "src/core/domain_services.py",
+      "doc": null
+    },
+    {
+      "id": 109,
+      "name": "src/core.domain_services.CleaningStrategyFactory",
+      "type": "class",
+      "file": "src/core/domain_services.py",
+      "doc": ""
+    },
+    {
+      "id": 110,
+      "name": "src/core.domain_services.CleaningStrategyFactory.get_strategy",
+      "type": "method",
+      "file": "src/core/domain_services.py",
+      "doc": null
+    },
+    {
+      "id": 111,
+      "name": "src/core.domain_services.DataCleaner",
+      "type": "class",
+      "file": "src/core/domain_services.py",
+      "doc": "Domain service for handling Missing Values using Strategy Pattern."
+    },
+    {
+      "id": 112,
+      "name": "src/core.domain_services.DataCleaner.handle_nulls",
+      "type": "method",
+      "file": "src/core/domain_services.py",
+      "doc": null
+    },
+    {
+      "id": 113,
+      "name": "src/core.domain_services.ScalingStrategy",
+      "type": "class",
+      "file": "src/core/domain_services.py",
+      "doc": ""
+    },
+    {
+      "id": 114,
+      "name": "src/core.domain_services.ScalingStrategy.apply",
+      "type": "method",
+      "file": "src/core/domain_services.py",
+      "doc": null
+    },
+    {
+      "id": 115,
+      "name": "src/core.domain_services.MinMaxScalingStrategy",
+      "type": "class",
+      "file": "src/core/domain_services.py",
+      "doc": ""
+    },
+    {
+      "id": 116,
+      "name": "src/core.domain_services.MinMaxScalingStrategy.apply",
+      "type": "method",
+      "file": "src/core/domain_services.py",
+      "doc": null
+    },
+    {
+      "id": 117,
+      "name": "src/core.domain_services.ZScoreScalingStrategy",
+      "type": "class",
+      "file": "src/core/domain_services.py",
+      "doc": ""
+    },
+    {
+      "id": 118,
+      "name": "src/core.domain_services.ZScoreScalingStrategy.apply",
+      "type": "method",
+      "file": "src/core/domain_services.py",
+      "doc": null
+    },
+    {
+      "id": 119,
+      "name": "src/core.domain_services.ScalingStrategyFactory",
+      "type": "class",
+      "file": "src/core/domain_services.py",
+      "doc": ""
+    },
+    {
+      "id": 120,
+      "name": "src/core.domain_services.ScalingStrategyFactory.get_strategy",
+      "type": "method",
+      "file": "src/core/domain_services.py",
+      "doc": null
+    },
+    {
+      "id": 121,
+      "name": "src/core.domain_services.DataScaler",
+      "type": "class",
+      "file": "src/core/domain_services.py",
+      "doc": "Domain service for Normalization and Standardization using Strategy Pattern."
+    },
+    {
+      "id": 122,
+      "name": "src/core.domain_services.DataScaler.apply_scaling",
+      "type": "method",
+      "file": "src/core/domain_services.py",
+      "doc": null
+    },
+    {
+      "id": 123,
+      "name": "src/core.domain_services.OutlierManager",
+      "type": "class",
+      "file": "src/core/domain_services.py",
+      "doc": "Domain service for Outlier Detection and Treatment (IQR)."
+    },
+    {
+      "id": 124,
+      "name": "src/core.domain_services.OutlierManager.detect_and_treat",
+      "type": "method",
+      "file": "src/core/domain_services.py",
+      "doc": null
+    },
+    {
+      "id": 125,
+      "name": "src/core.domain_services.Clusterer",
+      "type": "class",
+      "file": "src/core/domain_services.py",
+      "doc": "Domain service for Unsupervised Learning (Clustering)."
+    },
+    {
+      "id": 126,
+      "name": "src/core.domain_services.Clusterer.kmeans",
+      "type": "method",
+      "file": "src/core/domain_services.py",
+      "doc": null
+    },
+    {
+      "id": 127,
+      "name": "src/core.domain_services.get_numeric_columns",
+      "type": "function",
+      "file": "src/core/domain_services.py",
+      "doc": ""
+    },
+    {
+      "id": 128,
+      "name": "src/core.domain_services.get_categorical_columns",
+      "type": "function",
+      "file": "src/core/domain_services.py",
+      "doc": ""
+    },
+    {
+      "id": 129,
+      "name": "src/core.domain_services.calculate_descriptive_stats",
+      "type": "function",
+      "file": "src/core/domain_services.py",
+      "doc": "Calculates descriptive statistics including median."
+    },
+    {
+      "id": 130,
+      "name": "src/core.domain_services.calculate_distribution_shape",
+      "type": "function",
+      "file": "src/core/domain_services.py",
+      "doc": "Calculates Skewness and Kurtosis (Fisher)."
+    },
+    {
+      "id": 131,
+      "name": "src/core.domain_services.calculate_correlation_matrix",
+      "type": "function",
+      "file": "src/core/domain_services.py",
+      "doc": "Calculates Pearson correlation matrix."
+    },
+    {
+      "id": 132,
+      "name": "src/core.domain_services.check_normality",
+      "type": "function",
+      "file": "src/core/domain_services.py",
+      "doc": "Performs approximate normality check (Shapiro removed).\nReturns (is_normal, p_value) - Placeholder"
+    },
+    {
+      "id": 133,
+      "name": "src/core.domain_services.apply",
+      "type": "function",
+      "file": "src/core/domain_services.py",
+      "doc": ""
+    },
+    {
+      "id": 134,
+      "name": "src/core.domain_services.calculate_value",
+      "type": "function",
+      "file": "src/core/domain_services.py",
+      "doc": ""
+    },
+    {
+      "id": 135,
+      "name": "src/core.domain_services.get_strategy",
+      "type": "function",
+      "file": "src/core/domain_services.py",
+      "doc": ""
+    },
+    {
+      "id": 136,
+      "name": "src/core.domain_services.handle_nulls",
+      "type": "function",
+      "file": "src/core/domain_services.py",
+      "doc": "Returns (processed_df, affected_rows_count).\nDoes NOT mutate input df in-place."
+    },
+    {
+      "id": 137,
+      "name": "src/core.domain_services.apply_scaling",
+      "type": "function",
+      "file": "src/core/domain_services.py",
+      "doc": ""
+    },
+    {
+      "id": 138,
+      "name": "src/core.domain_services.detect_and_treat",
+      "type": "function",
+      "file": "src/core/domain_services.py",
+      "doc": "Returns (processed_df, num_outliers_detected, message_detail)."
+    },
+    {
+      "id": 139,
+      "name": "src/core.domain_services.kmeans",
+      "type": "function",
+      "file": "src/core/domain_services.py",
+      "doc": ""
+    },
+    {
+      "id": 140,
+      "name": "src/core.models",
+      "type": "module",
+      "file": "src/core/models.py",
+      "doc": null
+    },
+    {
+      "id": 141,
+      "name": "src/core.models.OperationLog",
+      "type": "class",
+      "file": "src/core/models.py",
+      "doc": "Represents a single log entry for an operation."
+    },
+    {
+      "id": 142,
+      "name": "src/core.models.OperationLog.__str__",
+      "type": "method",
+      "file": "src/core/models.py",
+      "doc": null
+    },
+    {
+      "id": 143,
+      "name": "src/core.models.AnalysisSession",
+      "type": "class",
+      "file": "src/core/models.py",
+      "doc": "Holds the state of the current user session.\nReplaces global variables 'estado_df' and 'entradas_log'."
+    },
+    {
+      "id": 144,
+      "name": "src/core.models.AnalysisSession.add_log",
+      "type": "method",
+      "file": "src/core/models.py",
+      "doc": null
+    },
+    {
+      "id": 145,
+      "name": "src/core.models.AnalysisSession.clear_logs",
+      "type": "method",
+      "file": "src/core/models.py",
+      "doc": null
+    },
+    {
+      "id": 146,
+      "name": "src/core.models.AnalysisSession.get_logs_as_string",
+      "type": "method",
+      "file": "src/core/models.py",
+      "doc": null
+    },
+    {
+      "id": 147,
+      "name": "src/core.models.AnalysisSession.has_data",
+      "type": "method",
+      "file": "src/core/models.py",
+      "doc": null
+    },
+    {
+      "id": 148,
+      "name": "src/core.models.__str__",
+      "type": "function",
+      "file": "src/core/models.py",
+      "doc": ""
+    },
+    {
+      "id": 149,
+      "name": "src/core.models.add_log",
+      "type": "function",
+      "file": "src/core/models.py",
+      "doc": ""
+    },
+    {
+      "id": 150,
+      "name": "src/core.models.clear_logs",
+      "type": "function",
+      "file": "src/core/models.py",
+      "doc": ""
+    },
+    {
+      "id": 151,
+      "name": "src/core.models.get_logs_as_string",
+      "type": "function",
+      "file": "src/core/models.py",
+      "doc": ""
+    },
+    {
+      "id": 152,
+      "name": "src/core.models.has_data",
+      "type": "function",
+      "file": "src/core/models.py",
+      "doc": ""
+    },
+    {
+      "id": 153,
+      "name": "src/core.ports",
+      "type": "module",
+      "file": "src/core/ports.py",
+      "doc": null
+    },
+    {
+      "id": 154,
+      "name": "src/core.ports.SessionRepository",
+      "type": "class",
+      "file": "src/core/ports.py",
+      "doc": ""
+    },
+    {
+      "id": 155,
+      "name": "src/core.ports.SessionRepository.get_session",
+      "type": "method",
+      "file": "src/core/ports.py",
+      "doc": null
+    },
+    {
+      "id": 156,
+      "name": "src/core.ports.SessionRepository.save_session",
+      "type": "method",
+      "file": "src/core/ports.py",
+      "doc": null
+    },
+    {
+      "id": 157,
+      "name": "src/core.ports.DataRepository",
+      "type": "class",
+      "file": "src/core/ports.py",
+      "doc": ""
+    },
+    {
+      "id": 158,
+      "name": "src/core.ports.DataRepository.save_dataframe",
+      "type": "method",
+      "file": "src/core/ports.py",
+      "doc": null
+    },
+    {
+      "id": 159,
+      "name": "src/core.ports.DataRepository.load_dataframe",
+      "type": "method",
+      "file": "src/core/ports.py",
+      "doc": null
+    },
+    {
+      "id": 160,
+      "name": "src/core.ports.get_session",
+      "type": "function",
+      "file": "src/core/ports.py",
+      "doc": "Retrieves a session metadata by ID."
+    },
+    {
+      "id": 161,
+      "name": "src/core.ports.save_session",
+      "type": "function",
+      "file": "src/core/ports.py",
+      "doc": "Saves session metadata."
+    },
+    {
+      "id": 162,
+      "name": "src/core.ports.save_dataframe",
+      "type": "function",
+      "file": "src/core/ports.py",
+      "doc": "Persists the dataframe for a given session."
+    },
+    {
+      "id": 163,
+      "name": "src/core.ports.load_dataframe",
+      "type": "function",
+      "file": "src/core/ports.py",
+      "doc": "Loads the dataframe for a given session."
+    },
+    {
+      "id": 164,
+      "name": "src/main",
+      "type": "module",
+      "file": "src/main.py",
+      "doc": null
+    },
+    {
+      "id": 165,
+      "name": "api/index",
+      "type": "module",
+      "file": "api/index.py",
+      "doc": null
+    },
+    {
+      "id": 166,
+      "name": "tests/test_api",
+      "type": "module",
+      "file": "tests/test_api.py",
+      "doc": null
+    },
+    {
+      "id": 167,
+      "name": "tests/test_api.clear_storage",
+      "type": "function",
+      "file": "tests/test_api.py",
+      "doc": "Clean up storage dirs before and after each test."
+    },
+    {
+      "id": 168,
+      "name": "tests/test_api.make_csv",
+      "type": "function",
+      "file": "tests/test_api.py",
+      "doc": ""
+    },
+    {
+      "id": 169,
+      "name": "tests/test_api.test_read_root",
+      "type": "function",
+      "file": "tests/test_api.py",
+      "doc": ""
+    },
+    {
+      "id": 170,
+      "name": "tests/test_api.test_upload_csv",
+      "type": "function",
+      "file": "tests/test_api.py",
+      "doc": ""
+    },
+    {
+      "id": 171,
+      "name": "tests/test_api.test_upload_then_stats",
+      "type": "function",
+      "file": "tests/test_api.py",
+      "doc": ""
+    },
+    {
+      "id": 172,
+      "name": "tests/test_api.test_upload_then_clean_nulls",
+      "type": "function",
+      "file": "tests/test_api.py",
+      "doc": ""
+    },
+    {
+      "id": 173,
+      "name": "tests/test_api.test_upload_then_scale",
+      "type": "function",
+      "file": "tests/test_api.py",
+      "doc": ""
+    },
+    {
+      "id": 174,
+      "name": "tests/test_api.test_upload_then_dedup",
+      "type": "function",
+      "file": "tests/test_api.py",
+      "doc": ""
+    },
+    {
+      "id": 175,
+      "name": "tests/test_api.test_upload_then_outliers",
+      "type": "function",
+      "file": "tests/test_api.py",
+      "doc": ""
+    },
+    {
+      "id": 176,
+      "name": "tests/test_api.test_upload_then_cluster",
+      "type": "function",
+      "file": "tests/test_api.py",
+      "doc": ""
+    },
+    {
+      "id": 177,
+      "name": "tests/test_api.test_upload_then_export",
+      "type": "function",
+      "file": "tests/test_api.py",
+      "doc": ""
+    },
+    {
+      "id": 178,
+      "name": "tests/test_api.test_no_data_returns_error",
+      "type": "function",
+      "file": "tests/test_api.py",
+      "doc": ""
+    },
+    {
+      "id": 179,
+      "name": "tests/test_api.test_upload_invalid_file",
+      "type": "function",
+      "file": "tests/test_api.py",
+      "doc": ""
+    },
+    {
+      "id": 180,
+      "name": "tests/test_auto_analyze_skills",
+      "type": "module",
+      "file": "tests/test_auto_analyze_skills.py",
+      "doc": null
+    },
+    {
+      "id": 181,
+      "name": "tests/test_auto_analyze_skills.sample_session",
+      "type": "function",
+      "file": "tests/test_auto_analyze_skills.py",
+      "doc": ""
+    },
+    {
+      "id": 182,
+      "name": "tests/test_auto_analyze_skills.test_profile_dataset",
+      "type": "function",
+      "file": "tests/test_auto_analyze_skills.py",
+      "doc": ""
+    },
+    {
+      "id": 183,
+      "name": "tests/test_auto_analyze_skills.test_detect_issues",
+      "type": "function",
+      "file": "tests/test_auto_analyze_skills.py",
+      "doc": ""
+    },
+    {
+      "id": 184,
+      "name": "tests/test_auto_analyze_skills.test_recommend_transformations",
+      "type": "function",
+      "file": "tests/test_auto_analyze_skills.py",
+      "doc": ""
+    },
+    {
+      "id": 185,
+      "name": "tests/test_auto_analyze_skills.test_recommend_models",
+      "type": "function",
+      "file": "tests/test_auto_analyze_skills.py",
+      "doc": ""
+    },
+    {
+      "id": 186,
+      "name": "tests/test_auto_analyze_skills.test_generate_business_insights",
+      "type": "function",
+      "file": "tests/test_auto_analyze_skills.py",
+      "doc": ""
+    },
+    {
+      "id": 187,
+      "name": "tests/test_auto_analyze_skills.test_auto_analyze",
+      "type": "function",
+      "file": "tests/test_auto_analyze_skills.py",
+      "doc": ""
+    },
+    {
+      "id": 188,
+      "name": "tests/test_core_services",
+      "type": "module",
+      "file": "tests/test_core_services.py",
+      "doc": null
+    },
+    {
+      "id": 189,
+      "name": "tests/test_core_services.test_statistical_analyzer_descriptive",
+      "type": "function",
+      "file": "tests/test_core_services.py",
+      "doc": ""
+    },
+    {
+      "id": 190,
+      "name": "tests/test_core_services.test_statistical_analyzer_categorical_check",
+      "type": "function",
+      "file": "tests/test_core_services.py",
+      "doc": ""
+    },
+    {
+      "id": 191,
+      "name": "tests/test_core_services.test_data_cleaner_mean_imputation",
+      "type": "function",
+      "file": "tests/test_core_services.py",
+      "doc": ""
+    },
+    {
+      "id": 192,
+      "name": "tests/test_core_services.test_data_cleaner_drop_rows",
+      "type": "function",
+      "file": "tests/test_core_services.py",
+      "doc": ""
+    },
+    {
+      "id": 193,
+      "name": "tests/test_core_services.test_data_scaler_minmax",
+      "type": "function",
+      "file": "tests/test_core_services.py",
+      "doc": ""
+    },
+    {
+      "id": 194,
+      "name": "tests/test_core_services.test_outlier_manager_detection",
+      "type": "function",
+      "file": "tests/test_core_services.py",
+      "doc": ""
+    },
+    {
+      "id": 195,
+      "name": "tests/test_core_services.test_outlier_manager_removal",
+      "type": "function",
+      "file": "tests/test_core_services.py",
+      "doc": ""
+    },
+    {
+      "id": 196,
+      "name": "tests/test_core_services.test_clusterer_kmeans",
+      "type": "function",
+      "file": "tests/test_core_services.py",
+      "doc": ""
+    },
+    {
+      "id": 197,
+      "name": "tests/test_dataframe_json",
+      "type": "module",
+      "file": "tests/test_dataframe_json.py",
+      "doc": null
+    },
+    {
+      "id": 198,
+      "name": "tests/test_dataframe_json.test_dataframe_split_json_roundtrip",
+      "type": "function",
+      "file": "tests/test_dataframe_json.py",
+      "doc": ""
+    },
+    {
+      "id": 199,
+      "name": "tests/test_dataframe_json.test_dataframe_split_json_missing_payload",
+      "type": "function",
+      "file": "tests/test_dataframe_json.py",
+      "doc": ""
+    }
+  ],
+  "edges": [
+    {
+      "source": 1,
+      "target": 2,
+      "label": "contains"
+    },
+    {
+      "source": 2,
+      "target": 3,
+      "label": "defines"
+    },
+    {
+      "source": 2,
+      "target": 4,
+      "label": "defines"
+    },
+    {
+      "source": 1,
+      "target": 5,
+      "label": "contains"
+    },
+    {
+      "source": 5,
+      "target": 6,
+      "label": "defines"
+    },
+    {
+      "source": 5,
+      "target": 7,
+      "label": "defines"
+    },
+    {
+      "source": 5,
+      "target": 8,
+      "label": "defines"
+    },
+    {
+      "source": 1,
+      "target": 9,
+      "label": "contains"
+    },
+    {
+      "source": 9,
+      "target": 10,
+      "label": "defines"
+    },
+    {
+      "source": 9,
+      "target": 11,
+      "label": "defines"
+    },
+    {
+      "source": 1,
+      "target": 12,
+      "label": "contains"
+    },
+    {
+      "source": 12,
+      "target": 13,
+      "label": "defines"
+    },
+    {
+      "source": 13,
+      "target": 14,
+      "label": "has_method"
+    },
+    {
+      "source": 13,
+      "target": 15,
+      "label": "has_method"
+    },
+    {
+      "source": 13,
+      "target": 16,
+      "label": "has_method"
+    },
+    {
+      "source": 12,
+      "target": 17,
+      "label": "defines"
+    },
+    {
+      "source": 12,
+      "target": 18,
+      "label": "defines"
+    },
+    {
+      "source": 12,
+      "target": 19,
+      "label": "defines"
+    },
+    {
+      "source": 1,
+      "target": 20,
+      "label": "contains"
+    },
+    {
+      "source": 20,
+      "target": 21,
+      "label": "defines"
+    },
+    {
+      "source": 21,
+      "target": 22,
+      "label": "has_method"
+    },
+    {
+      "source": 21,
+      "target": 23,
+      "label": "has_method"
+    },
+    {
+      "source": 21,
+      "target": 24,
+      "label": "has_method"
+    },
+    {
+      "source": 21,
+      "target": 25,
+      "label": "has_method"
+    },
+    {
+      "source": 20,
+      "target": 26,
+      "label": "defines"
+    },
+    {
+      "source": 26,
+      "target": 27,
+      "label": "has_method"
+    },
+    {
+      "source": 26,
+      "target": 28,
+      "label": "has_method"
+    },
+    {
+      "source": 26,
+      "target": 29,
+      "label": "has_method"
+    },
+    {
+      "source": 26,
+      "target": 30,
+      "label": "has_method"
+    },
+    {
+      "source": 20,
+      "target": 31,
+      "label": "defines"
+    },
+    {
+      "source": 20,
+      "target": 32,
+      "label": "defines"
+    },
+    {
+      "source": 20,
+      "target": 33,
+      "label": "defines"
+    },
+    {
+      "source": 20,
+      "target": 34,
+      "label": "defines"
+    },
+    {
+      "source": 20,
+      "target": 35,
+      "label": "defines"
+    },
+    {
+      "source": 20,
+      "target": 36,
+      "label": "defines"
+    },
+    {
+      "source": 1,
+      "target": 37,
+      "label": "contains"
+    },
+    {
+      "source": 37,
+      "target": 38,
+      "label": "defines"
+    },
+    {
+      "source": 38,
+      "target": 39,
+      "label": "has_method"
+    },
+    {
+      "source": 38,
+      "target": 40,
+      "label": "has_method"
+    },
+    {
+      "source": 38,
+      "target": 41,
+      "label": "has_method"
+    },
+    {
+      "source": 38,
+      "target": 42,
+      "label": "has_method"
+    },
+    {
+      "source": 37,
+      "target": 43,
+      "label": "defines"
+    },
+    {
+      "source": 37,
+      "target": 44,
+      "label": "defines"
+    },
+    {
+      "source": 37,
+      "target": 45,
+      "label": "defines"
+    },
+    {
+      "source": 37,
+      "target": 46,
+      "label": "defines"
+    },
+    {
+      "source": 1,
+      "target": 47,
+      "label": "contains"
+    },
+    {
+      "source": 47,
+      "target": 48,
+      "label": "defines"
+    },
+    {
+      "source": 47,
+      "target": 49,
+      "label": "defines"
+    },
+    {
+      "source": 47,
+      "target": 50,
+      "label": "defines"
+    },
+    {
+      "source": 50,
+      "target": 51,
+      "label": "has_method"
+    },
+    {
+      "source": 50,
+      "target": 52,
+      "label": "has_method"
+    },
+    {
+      "source": 50,
+      "target": 53,
+      "label": "has_method"
+    },
+    {
+      "source": 50,
+      "target": 54,
+      "label": "has_method"
+    },
+    {
+      "source": 47,
+      "target": 55,
+      "label": "defines"
+    },
+    {
+      "source": 47,
+      "target": 56,
+      "label": "defines"
+    },
+    {
+      "source": 47,
+      "target": 57,
+      "label": "defines"
+    },
+    {
+      "source": 47,
+      "target": 58,
+      "label": "defines"
+    },
+    {
+      "source": 47,
+      "target": 59,
+      "label": "defines"
+    },
+    {
+      "source": 1,
+      "target": 60,
+      "label": "contains"
+    },
+    {
+      "source": 60,
+      "target": 61,
+      "label": "defines"
+    },
+    {
+      "source": 60,
+      "target": 62,
+      "label": "defines"
+    },
+    {
+      "source": 60,
+      "target": 63,
+      "label": "defines"
+    },
+    {
+      "source": 60,
+      "target": 64,
+      "label": "defines"
+    },
+    {
+      "source": 60,
+      "target": 65,
+      "label": "defines"
+    },
+    {
+      "source": 60,
+      "target": 66,
+      "label": "defines"
+    },
+    {
+      "source": 1,
+      "target": 67,
+      "label": "contains"
+    },
+    {
+      "source": 67,
+      "target": 68,
+      "label": "defines"
+    },
+    {
+      "source": 67,
+      "target": 69,
+      "label": "defines"
+    },
+    {
+      "source": 1,
+      "target": 70,
+      "label": "contains"
+    },
+    {
+      "source": 70,
+      "target": 71,
+      "label": "defines"
+    },
+    {
+      "source": 70,
+      "target": 72,
+      "label": "defines"
+    },
+    {
+      "source": 1,
+      "target": 73,
+      "label": "contains"
+    },
+    {
+      "source": 73,
+      "target": 74,
+      "label": "defines"
+    },
+    {
+      "source": 1,
+      "target": 75,
+      "label": "contains"
+    },
+    {
+      "source": 75,
+      "target": 76,
+      "label": "defines"
+    },
+    {
+      "source": 1,
+      "target": 77,
+      "label": "contains"
+    },
+    {
+      "source": 77,
+      "target": 78,
+      "label": "defines"
+    },
+    {
+      "source": 77,
+      "target": 79,
+      "label": "defines"
+    },
+    {
+      "source": 1,
+      "target": 80,
+      "label": "contains"
+    },
+    {
+      "source": 80,
+      "target": 81,
+      "label": "defines"
+    },
+    {
+      "source": 1,
+      "target": 82,
+      "label": "contains"
+    },
+    {
+      "source": 82,
+      "target": 83,
+      "label": "defines"
+    },
+    {
+      "source": 83,
+      "target": 84,
+      "label": "has_method"
+    },
+    {
+      "source": 83,
+      "target": 85,
+      "label": "has_method"
+    },
+    {
+      "source": 83,
+      "target": 86,
+      "label": "has_method"
+    },
+    {
+      "source": 83,
+      "target": 87,
+      "label": "has_method"
+    },
+    {
+      "source": 83,
+      "target": 88,
+      "label": "has_method"
+    },
+    {
+      "source": 83,
+      "target": 89,
+      "label": "has_method"
+    },
+    {
+      "source": 82,
+      "target": 90,
+      "label": "defines"
+    },
+    {
+      "source": 90,
+      "target": 91,
+      "label": "has_method"
+    },
+    {
+      "source": 82,
+      "target": 92,
+      "label": "defines"
+    },
+    {
+      "source": 92,
+      "target": 93,
+      "label": "has_method"
+    },
+    {
+      "source": 82,
+      "target": 94,
+      "label": "defines"
+    },
+    {
+      "source": 94,
+      "target": 95,
+      "label": "has_method"
+    },
+    {
+      "source": 94,
+      "target": 96,
+      "label": "has_method"
+    },
+    {
+      "source": 82,
+      "target": 97,
+      "label": "defines"
+    },
+    {
+      "source": 97,
+      "target": 98,
+      "label": "has_method"
+    },
+    {
+      "source": 82,
+      "target": 99,
+      "label": "defines"
+    },
+    {
+      "source": 99,
+      "target": 100,
+      "label": "has_method"
+    },
+    {
+      "source": 82,
+      "target": 101,
+      "label": "defines"
+    },
+    {
+      "source": 101,
+      "target": 102,
+      "label": "has_method"
+    },
+    {
+      "source": 82,
+      "target": 103,
+      "label": "defines"
+    },
+    {
+      "source": 103,
+      "target": 104,
+      "label": "has_method"
+    },
+    {
+      "source": 82,
+      "target": 105,
+      "label": "defines"
+    },
+    {
+      "source": 105,
+      "target": 106,
+      "label": "has_method"
+    },
+    {
+      "source": 82,
+      "target": 107,
+      "label": "defines"
+    },
+    {
+      "source": 107,
+      "target": 108,
+      "label": "has_method"
+    },
+    {
+      "source": 82,
+      "target": 109,
+      "label": "defines"
+    },
+    {
+      "source": 109,
+      "target": 110,
+      "label": "has_method"
+    },
+    {
+      "source": 82,
+      "target": 111,
+      "label": "defines"
+    },
+    {
+      "source": 111,
+      "target": 112,
+      "label": "has_method"
+    },
+    {
+      "source": 82,
+      "target": 113,
+      "label": "defines"
+    },
+    {
+      "source": 113,
+      "target": 114,
+      "label": "has_method"
+    },
+    {
+      "source": 82,
+      "target": 115,
+      "label": "defines"
+    },
+    {
+      "source": 115,
+      "target": 116,
+      "label": "has_method"
+    },
+    {
+      "source": 82,
+      "target": 117,
+      "label": "defines"
+    },
+    {
+      "source": 117,
+      "target": 118,
+      "label": "has_method"
+    },
+    {
+      "source": 82,
+      "target": 119,
+      "label": "defines"
+    },
+    {
+      "source": 119,
+      "target": 120,
+      "label": "has_method"
+    },
+    {
+      "source": 82,
+      "target": 121,
+      "label": "defines"
+    },
+    {
+      "source": 121,
+      "target": 122,
+      "label": "has_method"
+    },
+    {
+      "source": 82,
+      "target": 123,
+      "label": "defines"
+    },
+    {
+      "source": 123,
+      "target": 124,
+      "label": "has_method"
+    },
+    {
+      "source": 82,
+      "target": 125,
+      "label": "defines"
+    },
+    {
+      "source": 125,
+      "target": 126,
+      "label": "has_method"
+    },
+    {
+      "source": 82,
+      "target": 127,
+      "label": "defines"
+    },
+    {
+      "source": 82,
+      "target": 128,
+      "label": "defines"
+    },
+    {
+      "source": 82,
+      "target": 129,
+      "label": "defines"
+    },
+    {
+      "source": 82,
+      "target": 130,
+      "label": "defines"
+    },
+    {
+      "source": 82,
+      "target": 131,
+      "label": "defines"
+    },
+    {
+      "source": 82,
+      "target": 132,
+      "label": "defines"
+    },
+    {
+      "source": 82,
+      "target": 133,
+      "label": "defines"
+    },
+    {
+      "source": 82,
+      "target": 134,
+      "label": "defines"
+    },
+    {
+      "source": 82,
+      "target": 135,
+      "label": "defines"
+    },
+    {
+      "source": 82,
+      "target": 136,
+      "label": "defines"
+    },
+    {
+      "source": 82,
+      "target": 137,
+      "label": "defines"
+    },
+    {
+      "source": 82,
+      "target": 138,
+      "label": "defines"
+    },
+    {
+      "source": 82,
+      "target": 139,
+      "label": "defines"
+    },
+    {
+      "source": 1,
+      "target": 140,
+      "label": "contains"
+    },
+    {
+      "source": 140,
+      "target": 141,
+      "label": "defines"
+    },
+    {
+      "source": 141,
+      "target": 142,
+      "label": "has_method"
+    },
+    {
+      "source": 140,
+      "target": 143,
+      "label": "defines"
+    },
+    {
+      "source": 143,
+      "target": 144,
+      "label": "has_method"
+    },
+    {
+      "source": 143,
+      "target": 145,
+      "label": "has_method"
+    },
+    {
+      "source": 143,
+      "target": 146,
+      "label": "has_method"
+    },
+    {
+      "source": 143,
+      "target": 147,
+      "label": "has_method"
+    },
+    {
+      "source": 140,
+      "target": 148,
+      "label": "defines"
+    },
+    {
+      "source": 140,
+      "target": 149,
+      "label": "defines"
+    },
+    {
+      "source": 140,
+      "target": 150,
+      "label": "defines"
+    },
+    {
+      "source": 140,
+      "target": 151,
+      "label": "defines"
+    },
+    {
+      "source": 140,
+      "target": 152,
+      "label": "defines"
+    },
+    {
+      "source": 1,
+      "target": 153,
+      "label": "contains"
+    },
+    {
+      "source": 153,
+      "target": 154,
+      "label": "defines"
+    },
+    {
+      "source": 154,
+      "target": 155,
+      "label": "has_method"
+    },
+    {
+      "source": 154,
+      "target": 156,
+      "label": "has_method"
+    },
+    {
+      "source": 153,
+      "target": 157,
+      "label": "defines"
+    },
+    {
+      "source": 157,
+      "target": 158,
+      "label": "has_method"
+    },
+    {
+      "source": 157,
+      "target": 159,
+      "label": "has_method"
+    },
+    {
+      "source": 153,
+      "target": 160,
+      "label": "defines"
+    },
+    {
+      "source": 153,
+      "target": 161,
+      "label": "defines"
+    },
+    {
+      "source": 153,
+      "target": 162,
+      "label": "defines"
+    },
+    {
+      "source": 153,
+      "target": 163,
+      "label": "defines"
+    },
+    {
+      "source": 1,
+      "target": 164,
+      "label": "contains"
+    },
+    {
+      "source": 1,
+      "target": 165,
+      "label": "contains"
+    },
+    {
+      "source": 1,
+      "target": 166,
+      "label": "contains"
+    },
+    {
+      "source": 166,
+      "target": 167,
+      "label": "defines"
+    },
+    {
+      "source": 166,
+      "target": 168,
+      "label": "defines"
+    },
+    {
+      "source": 166,
+      "target": 169,
+      "label": "defines"
+    },
+    {
+      "source": 166,
+      "target": 170,
+      "label": "defines"
+    },
+    {
+      "source": 166,
+      "target": 171,
+      "label": "defines"
+    },
+    {
+      "source": 166,
+      "target": 172,
+      "label": "defines"
+    },
+    {
+      "source": 166,
+      "target": 173,
+      "label": "defines"
+    },
+    {
+      "source": 166,
+      "target": 174,
+      "label": "defines"
+    },
+    {
+      "source": 166,
+      "target": 175,
+      "label": "defines"
+    },
+    {
+      "source": 166,
+      "target": 176,
+      "label": "defines"
+    },
+    {
+      "source": 166,
+      "target": 177,
+      "label": "defines"
+    },
+    {
+      "source": 166,
+      "target": 178,
+      "label": "defines"
+    },
+    {
+      "source": 166,
+      "target": 179,
+      "label": "defines"
+    },
+    {
+      "source": 1,
+      "target": 180,
+      "label": "contains"
+    },
+    {
+      "source": 180,
+      "target": 181,
+      "label": "defines"
+    },
+    {
+      "source": 180,
+      "target": 182,
+      "label": "defines"
+    },
+    {
+      "source": 180,
+      "target": 183,
+      "label": "defines"
+    },
+    {
+      "source": 180,
+      "target": 184,
+      "label": "defines"
+    },
+    {
+      "source": 180,
+      "target": 185,
+      "label": "defines"
+    },
+    {
+      "source": 180,
+      "target": 186,
+      "label": "defines"
+    },
+    {
+      "source": 180,
+      "target": 187,
+      "label": "defines"
+    },
+    {
+      "source": 1,
+      "target": 188,
+      "label": "contains"
+    },
+    {
+      "source": 188,
+      "target": 189,
+      "label": "defines"
+    },
+    {
+      "source": 188,
+      "target": 190,
+      "label": "defines"
+    },
+    {
+      "source": 188,
+      "target": 191,
+      "label": "defines"
+    },
+    {
+      "source": 188,
+      "target": 192,
+      "label": "defines"
+    },
+    {
+      "source": 188,
+      "target": 193,
+      "label": "defines"
+    },
+    {
+      "source": 188,
+      "target": 194,
+      "label": "defines"
+    },
+    {
+      "source": 188,
+      "target": 195,
+      "label": "defines"
+    },
+    {
+      "source": 188,
+      "target": 196,
+      "label": "defines"
+    },
+    {
+      "source": 1,
+      "target": 197,
+      "label": "contains"
+    },
+    {
+      "source": 197,
+      "target": 198,
+      "label": "defines"
+    },
+    {
+      "source": 197,
+      "target": 199,
+      "label": "defines"
+    }
+  ]
+}

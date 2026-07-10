@@ -3,19 +3,18 @@ import uuid
 
 from fastapi import Depends, HTTPException, Request, Response, status
 
-import src.core.agents.skills.clean_skills  # noqa: F401
+import src.core.agents.skills.auto_analyze_skills
+import src.core.agents.skills.clean_skills
 
 # --- Registro de Super-Skills ---
 # La importación de cada módulo activa los decoradores @register_skill,
 # que pueblan el registro global _SKILL_REGISTRY en base.py.
 # Añadir aquí cualquier nuevo módulo de skills.
-import src.core.agents.skills.io_skills            # noqa: F401
-import src.core.agents.skills.transform_skills     # noqa: F401
-import src.core.agents.skills.stats_skills         # noqa: F401
-import src.core.agents.skills.ml_skills            # noqa: F401
-import src.core.agents.skills.visualization_skills # noqa: F401
-import src.core.agents.skills.auto_analyze_skills  # noqa: F401
-
+import src.core.agents.skills.io_skills
+import src.core.agents.skills.ml_skills
+import src.core.agents.skills.stats_skills
+import src.core.agents.skills.transform_skills
+import src.core.agents.skills.visualization_skills  # noqa: F401
 from src.adapters.repositories.local_storage import (
     LocalFileDataRepository,
     LocalFileSessionRepository,

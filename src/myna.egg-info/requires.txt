@@ -1,0 +1,8 @@
+pandas
+numpy
+openpyxl
+plotly
+fastapi
+uvicorn
+python-multipart
+jinja2

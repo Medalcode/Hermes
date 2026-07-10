@@ -13,9 +13,11 @@ class PlottingAdapter:
 
     @staticmethod
     def plot_correlation_heatmap(df: pd.DataFrame) -> go.Figure | None:
-        if df is None: return None
+        if df is None:
+            return None
         df_numeric = df.select_dtypes(include=np.number)
-        if df_numeric.empty: return None
+        if df_numeric.empty:
+            return None
 
         try:
             corr = df_numeric.corr()
@@ -27,41 +29,42 @@ class PlottingAdapter:
                 title="Mapa de Calor de Correlaciones"
             )
             return fig
-        except:
+        except Exception:
             return None
 
     @staticmethod
     def plot_distribution(df: pd.DataFrame, column: str) -> go.Figure | None:
-        if df is None or column not in df.columns: return None
+        if df is None or column not in df.columns:
+            return None
 
         try:
-            # Create a histogram with a box plot margin
             fig = px.histogram(
                 df,
                 x=column,
-                marginal="box", # Shows boxplot on top
+                marginal="box",
                 title=f"Distribución: {column}",
                 hover_data=df.columns
             )
             return fig
-        except:
+        except Exception:
             return None
 
     @staticmethod
     def plot_regression(df: pd.DataFrame, x_col: str, y_col: str) -> go.Figure | None:
-        if df is None or x_col not in df.columns or y_col not in df.columns: return None
+        if df is None or x_col not in df.columns or y_col not in df.columns:
+            return None
 
         try:
             fig = px.scatter(
                 df,
                 x=x_col,
                 y=y_col,
-                trendline="ols", # Adds regression line
+                trendline="ols",
                 title=f"Regresión: {x_col} vs {y_col}",
                 hover_data=df.columns
             )
             return fig
-        except:
+        except Exception:
             return None
 
     @staticmethod
@@ -80,5 +83,5 @@ class PlottingAdapter:
                 hover_data=df.columns,
             )
             return fig
-        except:
+        except Exception:
             return None

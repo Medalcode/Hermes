@@ -1,15 +1,17 @@
-import pytest
-import pandas as pd
 import numpy as np
-from src.core.models import AnalysisSession
+import pandas as pd
+import pytest
+
 from src.core.agents.skills.auto_analyze_skills import (
-    profile_dataset,
+    auto_analyze,
     detect_issues,
-    recommend_transformations,
-    recommend_models,
     generate_business_insights,
-    auto_analyze
+    profile_dataset,
+    recommend_models,
+    recommend_transformations,
 )
+from src.core.models import AnalysisSession
+
 
 @pytest.fixture
 def sample_session():
@@ -63,7 +65,7 @@ def test_generate_business_insights(sample_session):
 def test_auto_analyze(sample_session):
     result = auto_analyze(sample_session, target_col="target")
     report = result.get("result")
-    
+
     assert "diagnostico_dataset" in report
     assert "problemas_detectados" in report
     assert "transformaciones_recomendadas" in report
