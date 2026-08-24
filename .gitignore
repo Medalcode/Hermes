@@ -8,8 +8,13 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Test cache
+# Coverage and test cache
 .pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+
 
 # Local session/data storage (runtime artifacts, never commit)
 storage/

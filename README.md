@@ -83,8 +83,13 @@ Myna/
 │   └── index.html
 │
 ├── tests/
-│   ├── test_core_services.py   ← 8 tests de dominio
-│   └── test_api.py             ← 11 tests de integración API (TestClient)
+│   ├── test_core_services.py             ← 8 tests de dominio
+│   ├── test_api.py                       ← 12 tests de integración API (TestClient)
+│   ├── test_skills.py                    ← 15 tests de Super-Skills y AgentManager
+│   ├── test_auto_analyze_skills.py       ← 6 tests de Auto-Analyze pipeline
+│   ├── test_domain_services_edge_cases.py← 9 tests de casos borde en dominio
+│   └── test_api_edge_cases.py           ← 3 tests de autenticación y stateless Vercel
+
 │
 ├── graphify-out/               ← Knowledge graph (199 nodos, 198 aristas)
 ├── .agents/                    ← skills.sh skills (tdd)
@@ -182,7 +187,9 @@ Abrir en el navegador: **http://localhost:8000**
 
 | Versión | Cambios principales |
 |---|---|
+| **V0.2.0** | Hexagonal Core Ports, Skill registry auto-discovery, 53 passing tests (88% coverage), CI/CD pipeline |
 | **V7.0** | Despliegue en Vercel con `uv`, pyproject.toml y frontend en React (Vite) integrado (06/06/2026) |
+
 | **V6.1** | Vercel stateless mode (df_json + IndexedDB) + AgentManager router (08/04/2026) |
 | **V6.0** | Super-Skills paramétricas, AgentManager integrado, eliminación de código legacy (Gradio) |
 | **V5.1** | Repository Pattern, soporte multi-sesión con cookies |
