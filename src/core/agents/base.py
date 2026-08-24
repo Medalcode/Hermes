@@ -20,6 +20,7 @@ def register_skill(skill_id: str, description: str = "") -> Callable:
     def decorator(fn: Callable):
         _SKILL_REGISTRY[skill_id] = {"func": fn, "description": description}
         return fn
+
     return decorator
 
 
@@ -30,8 +31,11 @@ class AgentManager:
     `agent_manager.execute_skill(skill_id, session, **params)` desde rutas o agentes.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
+        import src.core.agents.skills  # noqa: F401
+
         self._registry = _SKILL_REGISTRY
+
 
     def register(self, skill_id: str, func: Callable, description: str = "") -> None:
         self._registry[skill_id] = {"func": func, "description": description}
@@ -51,7 +55,9 @@ class AgentManager:
         if isinstance(result, SkillResult):
             return result
         if isinstance(result, dict):
-            return SkillResult(changes=result, preview=result.get("preview"), logs=result.get("logs", []))
+            return SkillResult(
+                changes=result, preview=result.get("preview"), logs=result.get("logs", [])
+            )
 
         # Resultados no standard
         return SkillResult(changes={"result": result})

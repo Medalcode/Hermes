@@ -1,11 +1,12 @@
-
 import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
+from src.core.ports import PlotterProvider
 
-class PlottingAdapter:
+
+class PlottingAdapter(PlotterProvider):
     """
     Driven Adapter for Visualization using Plotly.
     Generates interactive Figure objects.
@@ -26,50 +27,71 @@ class PlottingAdapter:
                 text_auto=True,
                 aspect="auto",
                 color_continuous_scale="RdBu_r",
-                title="Mapa de Calor de Correlaciones"
+                title="Mapa de Calor de Correlaciones",
             )
             return fig
         except Exception:
             return None
 
     @staticmethod
-    def plot_distribution(df: pd.DataFrame, column: str) -> go.Figure | None:
-        if df is None or column not in df.columns:
+    def plot_distribution(df: pd.DataFrame | None, column: str | None = None) -> go.Figure | None:
+        if df is None or not column or column not in df.columns:
             return None
 
         try:
             fig = px.histogram(
-                df,
-                x=column,
-                marginal="box",
-                title=f"Distribución: {column}",
-                hover_data=df.columns
+                df, x=column, marginal="box", title=f"Distribución: {column}", hover_data=df.columns
             )
             return fig
         except Exception:
             return None
 
     @staticmethod
-    def plot_regression(df: pd.DataFrame, x_col: str, y_col: str) -> go.Figure | None:
-        if df is None or x_col not in df.columns or y_col not in df.columns:
+    def plot_regression(
+        df: pd.DataFrame | None, x_col: str | None = None, y_col: str | None = None
+    ) -> go.Figure | None:
+        if (
+            df is None
+            or not x_col
+            or not y_col
+            or x_col not in df.columns
+            or y_col not in df.columns
+        ):
             return None
 
         try:
-            fig = px.scatter(
-                df,
-                x=x_col,
-                y=y_col,
-                trendline="ols",
-                title=f"Regresión: {x_col} vs {y_col}",
-                hover_data=df.columns
-            )
+            try:
+                fig = px.scatter(
+                    df,
+                    x=x_col,
+                    y=y_col,
+                    trendline="ols",
+                    title=f"Regresión: {x_col} vs {y_col}",
+                    hover_data=df.columns,
+                )
+            except Exception:
+                fig = px.scatter(
+                    df,
+                    x=x_col,
+                    y=y_col,
+                    title=f"Regresión: {x_col} vs {y_col}",
+                    hover_data=df.columns,
+                )
             return fig
         except Exception:
             return None
 
     @staticmethod
-    def plot_clusters(df: pd.DataFrame, x_col: str, y_col: str) -> go.Figure | None:
-        if df is None or x_col not in df.columns or y_col not in df.columns:
+    def plot_clusters(
+        df: pd.DataFrame | None, x_col: str | None = None, y_col: str | None = None
+    ) -> go.Figure | None:
+        if (
+            df is None
+            or not x_col
+            or not y_col
+            or x_col not in df.columns
+            or y_col not in df.columns
+        ):
             return None
 
         try:
