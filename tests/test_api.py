@@ -37,7 +37,6 @@ def make_csv(content: str, name: str = "test.csv") -> dict:
 def test_read_root():
     response = client.get("/")
     assert response.status_code == 200
-    assert response.json()["status"] == "ok"
 
 
 def test_healthz_and_readyz():

@@ -1,4 +1,5 @@
 import io
+import os
 from typing import Any
 
 import pandas as pd
@@ -13,7 +14,7 @@ from fastapi import (
     Response,
     UploadFile,
 )
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from src.adapters.api.dataframe_json import dataframe_from_split_json, dataframe_to_split_json
@@ -31,7 +32,19 @@ from src.core.domain_services import StatisticalAnalyzer
 from src.core.models import AnalysisSession
 
 app = FastAPI(title="Myna API")
-app.mount("/static", StaticFiles(directory="static"), name="static")
+
+if os.path.exists("static"):
+    app.mount("/static", StaticFiles(directory="static"), name="static")
+
+if os.path.exists("frontend/dist/assets"):
+    app.mount("/assets", StaticFiles(directory="frontend/dist/assets"), name="frontend_assets")
+
+
+def _get_index_html_response() -> Response:
+    for path in ["frontend/dist/index.html", "templates/index.html"]:
+        if os.path.exists(path):
+            return FileResponse(path)
+    return JSONResponse(status_code=200, content={"status": "ok", "message": "Myna API is running"})
 
 
 @app.middleware("http")
@@ -156,8 +169,9 @@ def _build_df_response(df: pd.DataFrame):
 
 
 @app.get("/")
+@app.get("/index.html")
 async def read_root():
-    return {"status": "ok", "message": "Myna API is running"}
+    return _get_index_html_response()
 
 
 @app.post("/api/upload")
@@ -407,3 +421,12 @@ async def auto_analyze_endpoint(
         "report": result.changes.get("result", {}),
         **_build_df_response(session.current_df),
     }
+
+
+@app.get("/{full_path:path}")
+async def catch_all_fallback(full_path: str):
+    if full_path.startswith("api/"):
+        return JSONResponse(
+            status_code=404, content={"error": f"Endpoint '/{full_path}' no encontrado."}
+        )
+    return _get_index_html_response()
