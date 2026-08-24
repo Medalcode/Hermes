@@ -6,10 +6,12 @@ import pandas as pd
 @dataclass
 class OperationLog:
     """Represents a single log entry for an operation."""
+
     message: str
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.message
+
 
 @dataclass
 class AnalysisSession:
@@ -17,13 +19,14 @@ class AnalysisSession:
     Holds the state of the current user session.
     Replaces global variables 'estado_df' and 'entradas_log'.
     """
+
     current_df: pd.DataFrame | None = None
     logs: list[OperationLog] = field(default_factory=list)
 
-    def add_log(self, message: str):
+    def add_log(self, message: str) -> None:
         self.logs.append(OperationLog(message))
 
-    def clear_logs(self):
+    def clear_logs(self) -> None:
         self.logs = []
 
     def get_logs_as_string(self) -> str:

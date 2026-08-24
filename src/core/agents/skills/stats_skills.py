@@ -11,6 +11,7 @@ FUSIÓN JUSTIFICADA:
     - Retorno de dict
     Se unifican con el parámetro stat_type.
 """
+
 from src.core.agents.base import register_skill
 from src.core.domain_services import StatisticalAnalyzer
 from src.core.models import AnalysisSession

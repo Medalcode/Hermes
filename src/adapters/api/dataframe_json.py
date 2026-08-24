@@ -4,7 +4,7 @@ import pandas as pd
 
 
 def dataframe_to_split_json(df: pd.DataFrame) -> str:
-    return df.to_json(orient="split")
+    return str(df.to_json(orient="split"))
 
 
 def dataframe_from_split_json(df_json: str) -> pd.DataFrame:

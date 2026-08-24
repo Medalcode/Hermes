@@ -8,29 +8,37 @@ es HUÉRFANO y puede eliminarse. Su lógica está consolidada aquí.
 """
 
 from src.core.agents.base import register_skill
-from src.core.domain_services import DataCleaner
+from src.core.domain_services import DataCleaner, OutlierManager
 from src.core.models import AnalysisSession
 
 
-@register_skill("clean_nulls", description="Trata valores nulos en columnas específicas usando el método indicado")
+@register_skill(
+    "clean_nulls",
+    description="Trata valores nulos en columnas específicas usando el método indicado",
+)
 def clean_nulls(session: AnalysisSession, columns: list[str], method: str) -> dict:
     if not session.has_data():
         return {"error": "No hay datos en la sesión."}
 
     df_new, affected = DataCleaner.handle_nulls(session.current_df, columns, method)
     session.current_df = df_new
-    session.add_log(f"Skill: clean_nulls → método='{method}', columnas={columns}, afectados={affected}")
+    session.add_log(
+        f"Skill: clean_nulls → método='{method}', columnas={columns}, afectados={affected}"
+    )
 
     preview = df_new.head(10).fillna("").to_dict(orient="records") if df_new is not None else []
     return {"preview": preview, "affected_count": affected}
 
 
-@register_skill("drop_duplicates", description="Elimina filas duplicadas del DataFrame de la sesión")
+@register_skill(
+    "drop_duplicates", description="Elimina filas duplicadas del DataFrame de la sesión"
+)
 def drop_duplicates(session: AnalysisSession, subset: list[str] | None = None) -> dict:
-    if not session.has_data():
+    if not session.has_data() or session.current_df is None:
         return {"error": "No hay datos en la sesión."}
 
     df = session.current_df
+
     initial_rows = len(df)
     df_clean = df.drop_duplicates(subset=subset)
     affected = initial_rows - len(df_clean)
@@ -40,3 +48,20 @@ def drop_duplicates(session: AnalysisSession, subset: list[str] | None = None) -
 
     preview = df_clean.head(10).fillna("").to_dict(orient="records")
     return {"preview": preview, "affected_count": affected}
+
+
+@register_skill(
+    "handle_outliers", description="Detecta y trata outliers en una columna específica usando IQR"
+)
+def handle_outliers(session: AnalysisSession, column: str, treatment: str) -> dict:
+    if not session.has_data():
+        return {"error": "No hay datos en la sesión."}
+
+    df_new, count, detail = OutlierManager.detect_and_treat(session.current_df, column, treatment)
+    session.current_df = df_new
+    session.add_log(
+        f"Skill: handle_outliers → columna='{column}', tratamiento='{treatment}', detectados={count}"
+    )
+
+    preview = df_new.head(10).fillna("").to_dict(orient="records") if df_new is not None else []
+    return {"preview": preview, "count": count, "detail": detail}

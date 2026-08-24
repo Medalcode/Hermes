@@ -1,5 +1,4 @@
 import io
-import json
 
 import pandas as pd
 from fastapi import Depends, FastAPI, File, Form, HTTPException, Request, Response, UploadFile
@@ -15,7 +14,6 @@ from src.adapters.api.dependencies import (
     save_analysis_session,
     verify_api_key,
 )
-from src.adapters.visualization.plotter import PlottingAdapter
 from src.core.agents.base import AgentManager
 from src.core.domain_services import StatisticalAnalyzer
 from src.core.models import AnalysisSession
@@ -37,17 +35,33 @@ async def auth_middleware(request: Request, call_next):
 def _get_request_df(session: AnalysisSession, df_json: str | None):
     if in_vercel_runtime():
         if not df_json:
-            return None, JSONResponse(status_code=400, content={"error": "Session dataframe payload is required"})
+            return None, JSONResponse(
+                status_code=400, content={"error": "Session dataframe payload is required"}
+            )
         try:
             return dataframe_from_split_json(df_json), None
         except ValueError:
-            return None, JSONResponse(status_code=400, content={"error": "Invalid session dataframe payload"})
+            return None, JSONResponse(
+                status_code=400, content={"error": "Invalid session dataframe payload"}
+            )
     if df_json:
         try:
             return dataframe_from_split_json(df_json), None
         except ValueError:
-            return None, JSONResponse(status_code=400, content={"error": "Invalid session dataframe payload"})
+            return None, JSONResponse(
+                status_code=400, content={"error": "Invalid session dataframe payload"}
+            )
     return session.current_df, None
+
+
+def _prepare_session_dataframe(session: AnalysisSession, df_json: str | None):
+    current_df, error_response = _get_request_df(session, df_json)
+    if error_response:
+        return None, error_response
+    if current_df is None:
+        return None, JSONResponse(status_code=400, content={"error": "No dataframe"})
+    session.current_df = current_df
+    return current_df, None
 
 
 def _build_df_response(df: pd.DataFrame):
@@ -75,7 +89,9 @@ async def upload_file(
     contents = await file.read()
     file_obj = io.BytesIO(contents)
     file_obj.name = file.filename
-    result = agent_manager.execute_skill("load_file", session, file_obj=file_obj, delimiter=delimiter)
+    result = agent_manager.execute_skill(
+        "load_file", session, file_obj=file_obj, delimiter=delimiter
+    )
     if result.changes.get("error"):
         return JSONResponse(status_code=400, content={"error": result.changes["error"]})
     save_analysis_session(session_id, session)
@@ -101,12 +117,9 @@ async def clean_nulls(
     session_id: str = Depends(get_session_id),
     agent_manager: AgentManager = Depends(get_agent_manager),
 ):
-    current_df, error_response = _get_request_df(session, df_json)
-    if error_response:
-        return error_response
-    if current_df is None:
-        return JSONResponse(status_code=400, content={"error": "No dataframe"})
-    session.current_df = current_df
+    _, err = _prepare_session_dataframe(session, df_json)
+    if err:
+        return err
     result = agent_manager.execute_skill("clean_nulls", session, columns=cols, method=method)
     if result.changes.get("error"):
         return JSONResponse(status_code=400, content={"error": result.changes["error"]})
@@ -127,12 +140,9 @@ async def scale_data(
     session_id: str = Depends(get_session_id),
     agent_manager: AgentManager = Depends(get_agent_manager),
 ):
-    current_df, error_response = _get_request_df(session, df_json)
-    if error_response:
-        return error_response
-    if current_df is None:
-        return JSONResponse(status_code=400, content={"error": "No dataframe"})
-    session.current_df = current_df
+    _, err = _prepare_session_dataframe(session, df_json)
+    if err:
+        return err
     result = agent_manager.execute_skill("scale_columns", session, columns=cols, method=method)
     if result.changes.get("error"):
         return JSONResponse(status_code=400, content={"error": result.changes["error"]})
@@ -152,12 +162,9 @@ async def drop_duplicates(
     session_id: str = Depends(get_session_id),
     agent_manager: AgentManager = Depends(get_agent_manager),
 ):
-    current_df, error_response = _get_request_df(session, df_json)
-    if error_response:
-        return error_response
-    if current_df is None:
-        return JSONResponse(status_code=400, content={"error": "No dataframe"})
-    session.current_df = current_df
+    _, err = _prepare_session_dataframe(session, df_json)
+    if err:
+        return err
     cols = [c.strip() for c in subset.split(",")] if subset else None
     result = agent_manager.execute_skill("drop_duplicates", session, subset=cols)
     if result.changes.get("error"):
@@ -177,22 +184,24 @@ async def handle_outliers(
     df_json: str | None = Form(None),
     session: AnalysisSession = Depends(get_analysis_session),
     session_id: str = Depends(get_session_id),
+    agent_manager: AgentManager = Depends(get_agent_manager),
 ):
-    current_df, error_response = _get_request_df(session, df_json)
-    if error_response:
-        return error_response
-    if current_df is None:
-        return JSONResponse(status_code=400, content={"error": "No dataframe"})
-    from src.core.domain_services import OutlierManager
-    df_new, count, detail = OutlierManager.detect_and_treat(current_df, column, treatment)
-    session.current_df = df_new
-    session.add_log(f"API: Outliers treated on '{column}' with {treatment}")
+    _, err = _prepare_session_dataframe(session, df_json)
+    if err:
+        return err
+    result = agent_manager.execute_skill(
+        "handle_outliers", session, column=column, treatment=treatment
+    )
+    if result.changes.get("error"):
+        return JSONResponse(status_code=400, content={"error": result.changes["error"]})
     save_analysis_session(session_id, session)
+    count = result.changes.get("count", 0)
+    detail = result.changes.get("detail", "")
     return {
         "message": f"{count} outliers: {detail}",
         "count": int(count),
-        "preview": df_new.head(10).fillna("").to_dict(orient="records"),
-        **_build_df_response(df_new),
+        "preview": result.changes.get("preview", []),
+        **_build_df_response(session.current_df),
     }
 
 
@@ -203,7 +212,9 @@ async def get_stats(
     agent_manager: AgentManager = Depends(get_agent_manager),
 ):
     if in_vercel_runtime():
-        return JSONResponse(status_code=400, content={"error": "Use POST /api/stats in Vercel mode"})
+        return JSONResponse(
+            status_code=400, content={"error": "Use POST /api/stats in Vercel mode"}
+        )
     if not session.has_data():
         return JSONResponse(status_code=400, content={"error": "No dataframe"})
     response.headers["Deprecation"] = "true"
@@ -223,12 +234,9 @@ async def post_stats(
     session: AnalysisSession = Depends(get_analysis_session),
     agent_manager: AgentManager = Depends(get_agent_manager),
 ):
-    current_df, error_response = _get_request_df(session, df_json)
-    if error_response:
-        return error_response
-    if current_df is None:
-        return JSONResponse(status_code=400, content={"error": "No dataframe"})
-    session.current_df = current_df
+    _, err = _prepare_session_dataframe(session, df_json)
+    if err:
+        return err
     desc_result = agent_manager.execute_skill("compute_stats", session, stat_type="descriptive")
     corr_result = agent_manager.execute_skill("compute_stats", session, stat_type="correlation")
     return {
@@ -247,12 +255,9 @@ async def run_cluster(
     session_id: str = Depends(get_session_id),
     agent_manager: AgentManager = Depends(get_agent_manager),
 ):
-    current_df, error_response = _get_request_df(session, df_json)
-    if error_response:
-        return error_response
-    if current_df is None:
-        return JSONResponse(status_code=400, content={"error": "No dataframe"})
-    session.current_df = current_df
+    _, err = _prepare_session_dataframe(session, df_json)
+    if err:
+        return err
     result = agent_manager.execute_skill("kmeans_cluster", session, columns=cols, k=k)
     if result.changes.get("error"):
         return JSONResponse(status_code=400, content={"error": result.changes["error"]})
@@ -272,24 +277,15 @@ async def get_plot(
     col: str = Form(None),
     df_json: str | None = Form(None),
     session: AnalysisSession = Depends(get_analysis_session),
+    agent_manager: AgentManager = Depends(get_agent_manager),
 ):
-    current_df, error_response = _get_request_df(session, df_json)
-    if error_response:
-        return error_response
-    if current_df is None:
-        return JSONResponse(status_code=400, content={"error": "No dataframe"})
-    fig = None
-    if type == "correlation":
-        fig = PlottingAdapter.plot_correlation_heatmap(current_df)
-    elif type == "distribution":
-        fig = PlottingAdapter.plot_distribution(current_df, col)
-    elif type == "regression":
-        fig = PlottingAdapter.plot_regression(current_df, x, y)
-    elif type == "cluster":
-        fig = PlottingAdapter.plot_clusters(current_df, x, y)
-    if fig:
-        return json.loads(fig.to_json())
-    return {"error": "Could not generate plot"}
+    _, err = _prepare_session_dataframe(session, df_json)
+    if err:
+        return err
+    result = agent_manager.execute_skill("plot", session, type=type, x=x, y=y, col=col)
+    if result.changes.get("error"):
+        return JSONResponse(status_code=400, content={"error": result.changes["error"]})
+    return result.changes.get("figure_json", {})
 
 
 @app.post("/api/export")
@@ -300,16 +296,14 @@ async def export_data(
     _session_id: str = Depends(get_session_id),
     agent_manager: AgentManager = Depends(get_agent_manager),
 ):
-    current_df, error_response = _get_request_df(session, df_json)
-    if error_response:
-        return error_response
-    if current_df is None:
-        return JSONResponse(status_code=400, content={"error": "No dataframe"})
-    session.current_df = current_df
+    _, err = _prepare_session_dataframe(session, df_json)
+    if err:
+        return err
     result = agent_manager.execute_skill("export_file", session, format_type=format_type)
     if result.changes.get("error"):
         return JSONResponse(status_code=400, content={"error": result.changes["error"]})
     return {"file_path": result.changes.get("file_path", "")}
+
 
 @app.post("/api/auto-analyze")
 async def auto_analyze_endpoint(
@@ -319,13 +313,9 @@ async def auto_analyze_endpoint(
     session_id: str = Depends(get_session_id),
     agent_manager: AgentManager = Depends(get_agent_manager),
 ):
-    current_df, error_response = _get_request_df(session, df_json)
-    if error_response:
-        return error_response
-    if current_df is None:
-        return JSONResponse(status_code=400, content={"error": "No dataframe"})
-    session.current_df = current_df
-
+    _, err = _prepare_session_dataframe(session, df_json)
+    if err:
+        return err
     result = agent_manager.execute_skill("auto_analyze", session, target_col=target_col)
     if result.changes.get("error"):
         return JSONResponse(status_code=400, content={"error": result.changes["error"]})

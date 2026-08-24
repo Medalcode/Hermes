@@ -36,11 +36,10 @@ class LocalFileSessionRepository(SessionRepository):
 
     def save_session(self, session: AnalysisSession, session_id: str) -> None:
         path = self._get_path(session_id)
-        data = {
-            "logs": [{"message": log.message} for log in session.logs]
-        }
+        data = {"logs": [{"message": log.message} for log in session.logs]}
         with open(path, "w") as f:
             json.dump(data, f)
+
 
 class LocalFileDataRepository(DataRepository):
     def __init__(self, storage_dir: str = "storage/data"):

@@ -27,8 +27,12 @@ def scale_columns(session: AnalysisSession, columns: list[str], method: str) -> 
     return {"preview": preview}
 
 
-@register_skill("encode_categoricals", description="Codifica columnas categóricas (one-hot o label encoding)")
-def encode_categoricals(session: AnalysisSession, columns: list[str], method: str = "one-hot") -> dict:
+@register_skill(
+    "encode_categoricals", description="Codifica columnas categóricas (one-hot o label encoding)"
+)
+def encode_categoricals(
+    session: AnalysisSession, columns: list[str], method: str = "one-hot"
+) -> dict:
     """
     Parámetros:
         columns: lista de columnas categóricas a codificar.
@@ -38,10 +42,11 @@ def encode_categoricals(session: AnalysisSession, columns: list[str], method: st
     evita crear dos skills separadas (OneHotEncoderSkill, LabelEncoderSkill)
     que compartirían guardia de datos, log y preview.
     """
-    if not session.has_data():
+    if not session.has_data() or session.current_df is None:
         return {"error": "No hay datos en la sesión."}
 
     df = session.current_df.copy()
+
     new_columns = []
 
     if method == "one-hot":
@@ -49,6 +54,7 @@ def encode_categoricals(session: AnalysisSession, columns: list[str], method: st
         new_columns = [c for c in df.columns if any(c.startswith(col + "_") for col in columns)]
     elif method == "label":
         import pandas as pd
+
         for col in columns:
             if col in df.columns:
                 df[col], _ = pd.factorize(df[col])

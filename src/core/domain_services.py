@@ -13,16 +13,16 @@ class StatisticalAnalyzer:
     """
 
     @staticmethod
-    def get_numeric_columns(df: pd.DataFrame) -> list[str]:
+    def get_numeric_columns(df: pd.DataFrame | None) -> list[str]:
         if df is None:
             return []
-        return df.select_dtypes(include=np.number).columns.tolist()
+        return [str(c) for c in df.select_dtypes(include=np.number).columns]
 
     @staticmethod
-    def get_categorical_columns(df: pd.DataFrame) -> list[str]:
+    def get_categorical_columns(df: pd.DataFrame | None) -> list[str]:
         if df is None:
             return []
-        return df.select_dtypes(include=['object', 'category', 'string']).columns.tolist()
+        return [str(c) for c in df.select_dtypes(include=["object", "category", "string"]).columns]
 
     def calculate_descriptive_stats(self, df: pd.DataFrame) -> pd.DataFrame:
         """Calculates descriptive statistics including median."""
@@ -31,9 +31,9 @@ class StatisticalAnalyzer:
             return pd.DataFrame()
 
         stats = df_numeric.describe().T
-        stats['median'] = df_numeric.median()
+        stats["median"] = df_numeric.median()
         # Reorder and round
-        cols = ['count', 'mean', 'median', 'std', 'min', '25%', '50%', '75%', 'max']
+        cols = ["count", "mean", "median", "std", "min", "25%", "50%", "75%", "max"]
         return stats[cols].round(3)
 
     def calculate_distribution_shape(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -42,17 +42,16 @@ class StatisticalAnalyzer:
         if df_numeric.empty:
             return pd.DataFrame()
 
-        return pd.DataFrame({
-            'Curtosis (Normal = 0)': df_numeric.kurt(),
-            'Asimetría (Skewness)': df_numeric.skew()
-        }).round(3)
+        return pd.DataFrame(
+            {"Curtosis (Normal = 0)": df_numeric.kurt(), "Asimetría (Skewness)": df_numeric.skew()}
+        ).round(3)
 
     def calculate_correlation_matrix(self, df: pd.DataFrame) -> pd.DataFrame:
         """Calculates Pearson correlation matrix."""
         df_numeric = df.select_dtypes(include=np.number)
         if df_numeric.empty:
             return pd.DataFrame()
-        return df_numeric.corr(method='pearson')
+        return df_numeric.corr(method="pearson")
 
     def check_normality(self, series: pd.Series) -> tuple[bool, float]:
         """
@@ -80,11 +79,13 @@ class CleaningStrategy(ABC):
     def apply(self, df: pd.DataFrame, columns: list[str]) -> tuple[pd.DataFrame, int]:
         pass
 
+
 class DropRowsStrategy(CleaningStrategy):
     def apply(self, df: pd.DataFrame, columns: list[str]) -> tuple[pd.DataFrame, int]:
         initial_rows = len(df)
         df_clean = df.dropna(subset=columns)
         return df_clean, initial_rows - len(df_clean)
+
 
 class ImputationStrategy(CleaningStrategy, ABC):
     def apply(self, df: pd.DataFrame, columns: list[str]) -> tuple[pd.DataFrame, int]:
@@ -105,11 +106,13 @@ class ImputationStrategy(CleaningStrategy, ABC):
     def calculate_value(self, series: pd.Series) -> Any:
         pass
 
+
 class MeanImputationStrategy(ImputationStrategy):
     def calculate_value(self, series: pd.Series):
         if pd.api.types.is_numeric_dtype(series):
             return series.mean()
         return None
+
 
 class MedianImputationStrategy(ImputationStrategy):
     def calculate_value(self, series: pd.Series):
@@ -117,11 +120,13 @@ class MedianImputationStrategy(ImputationStrategy):
             return series.median()
         return None
 
+
 class MaxImputationStrategy(ImputationStrategy):
     def calculate_value(self, series: pd.Series):
         if pd.api.types.is_numeric_dtype(series):
             return series.max()
         return None
+
 
 class MinImputationStrategy(ImputationStrategy):
     def calculate_value(self, series: pd.Series):
@@ -129,11 +134,13 @@ class MinImputationStrategy(ImputationStrategy):
             return series.min()
         return None
 
+
 class ZeroImputationStrategy(ImputationStrategy):
     def calculate_value(self, series: pd.Series):
         if pd.api.types.is_numeric_dtype(series):
             return 0
         return None
+
 
 class ModeImputationStrategy(ImputationStrategy):
     def calculate_value(self, series: pd.Series):
@@ -143,19 +150,21 @@ class ModeImputationStrategy(ImputationStrategy):
                 return mode_series[0]
         return None
 
+
 class CleaningStrategyFactory:
     @staticmethod
-    def get_strategy(method: str) -> CleaningStrategy:
-        strategies = {
+    def get_strategy(method: str) -> CleaningStrategy | None:
+        strategies: dict[str, CleaningStrategy] = {
             "Eliminar filas": DropRowsStrategy(),
             "Llenar con promedio": MeanImputationStrategy(),
             "Llenar con mediana (Mejora 5)": MedianImputationStrategy(),
             "Llenar con máximo": MaxImputationStrategy(),
             "Llenar con mínimo": MinImputationStrategy(),
             "Llenar con cero": ZeroImputationStrategy(),
-            "Llenar con moda (Categórica)": ModeImputationStrategy()
+            "Llenar con moda (Categórica)": ModeImputationStrategy(),
         }
         return strategies.get(method)
+
 
 class DataCleaner:
     """Domain service for handling Missing Values using Strategy Pattern."""
@@ -179,12 +188,15 @@ class DataCleaner:
 
         return strategy.apply(df, columns)
 
+
 # from sklearn.preprocessing import MinMaxScaler, StandardScaler (Removed for Vercel)
+
 
 class ScalingStrategy(ABC):
     @abstractmethod
     def apply(self, df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
         pass
+
 
 class MinMaxScalingStrategy(ScalingStrategy):
     def apply(self, df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
@@ -200,6 +212,7 @@ class MinMaxScalingStrategy(ScalingStrategy):
                     df_scaled[col] = (series - min_val) / (max_val - min_val)
         return df_scaled
 
+
 class ZScoreScalingStrategy(ScalingStrategy):
     def apply(self, df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
         df_scaled = df.copy()
@@ -214,14 +227,16 @@ class ZScoreScalingStrategy(ScalingStrategy):
                     df_scaled[col] = (series - mean_val) / std_val
         return df_scaled
 
+
 class ScalingStrategyFactory:
     @staticmethod
-    def get_strategy(method: str) -> ScalingStrategy:
-        strategies = {
+    def get_strategy(method: str) -> ScalingStrategy | None:
+        strategies: dict[str, ScalingStrategy] = {
             "Min-Max": MinMaxScalingStrategy(),
-            "Z-Score": ZScoreScalingStrategy()
+            "Z-Score": ZScoreScalingStrategy(),
         }
         return strategies.get(method)
+
 
 class DataScaler:
     """Domain service for Normalization and Standardization using Strategy Pattern."""
@@ -237,11 +252,14 @@ class DataScaler:
 
         return strategy.apply(df, columns)
 
+
 class OutlierManager:
     """Domain service for Outlier Detection and Treatment (IQR)."""
 
     @staticmethod
-    def detect_and_treat(df: pd.DataFrame, column: str, treatment: str) -> tuple[pd.DataFrame, int, str]:
+    def detect_and_treat(
+        df: pd.DataFrame, column: str, treatment: str
+    ) -> tuple[pd.DataFrame, int, str]:
         """
         Returns (processed_df, num_outliers_detected, message_detail).
         """
@@ -271,10 +289,12 @@ class OutlierManager:
             df_out[column] = np.where(df_out[column] < lower_bound, lower_bound, df_out[column])
             return df_out, num_outliers, "Winsorizados."
 
-        else: # Informar
+        else:  # Informar
             return df_out, num_outliers, "Solo detectados (sin cambios)."
 
+
 # from sklearn.cluster import KMeans
+
 
 class Clusterer:
     """Domain service for Unsupervised Learning (Clustering)."""
@@ -319,12 +339,9 @@ class Clusterer:
                     if len(points) > 0:
                         centroids[i] = points.mean(axis=0)
 
-
-            df_clustered.loc[df_clustered[columns].dropna().index, 'Cluster'] = clusters
-            df_clustered['Cluster'] = df_clustered['Cluster'].fillna(-1).astype(int)
+            df_clustered.loc[df_clustered[columns].dropna().index, "Cluster"] = clusters
+            df_clustered["Cluster"] = df_clustered["Cluster"].fillna(-1).astype(int)
 
             return df_clustered, f"Clustering completado (K={k}) - NativeMode."
         except Exception as e:
             return df, f"Error clustering: {str(e)}"
-
-
