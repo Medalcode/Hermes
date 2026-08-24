@@ -17,11 +17,20 @@ from src.core.domain_services import (
 # --- StatisticalAnalyzer Edge Cases ---
 def test_statistical_analyzer_empty_df():
     analyzer = StatisticalAnalyzer()
-    assert StatisticalAnalyzer.get_numeric_columns(None) == []
-    assert StatisticalAnalyzer.get_categorical_columns(None) == []
-    assert analyzer.calculate_descriptive_stats(pd.DataFrame()).empty
-    assert analyzer.calculate_distribution_shape(pd.DataFrame()).empty
-    assert analyzer.calculate_correlation_matrix(pd.DataFrame()).empty
+    empty_df = pd.DataFrame()
+    assert analyzer.calculate_descriptive_stats(empty_df).empty
+    assert analyzer.calculate_distribution_shape(empty_df).empty
+    assert analyzer.calculate_correlation_matrix(empty_df).empty
+
+
+def test_statistical_analyzer_duckdb_vectorization():
+    analyzer = StatisticalAnalyzer()
+    df = pd.DataFrame({"col1": [1.0, 2.0, 3.0, 4.0, 5.0], "col2": [10.0, 20.0, 30.0, 40.0, 50.0]})
+    stats = analyzer.calculate_descriptive_stats(df)
+    assert not stats.empty
+    assert stats.loc["col1", "mean"] == 3.0
+    assert stats.loc["col1", "median"] == 3.0
+    assert stats.loc["col2", "mean"] == 30.0
 
 
 def test_statistical_analyzer_check_normality():

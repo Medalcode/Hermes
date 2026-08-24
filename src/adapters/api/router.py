@@ -2,7 +2,17 @@ import io
 from typing import Any
 
 import pandas as pd
-from fastapi import Depends, FastAPI, File, Form, HTTPException, Request, Response, UploadFile
+from fastapi import (
+    BackgroundTasks,
+    Depends,
+    FastAPI,
+    File,
+    Form,
+    HTTPException,
+    Request,
+    Response,
+    UploadFile,
+)
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -15,6 +25,7 @@ from src.adapters.api.dependencies import (
     save_analysis_session,
     verify_api_key,
 )
+from src.adapters.repositories.job_repository import get_job_repository
 from src.core.agents.base import AgentManager
 from src.core.domain_services import StatisticalAnalyzer
 from src.core.models import AnalysisSession
@@ -47,7 +58,63 @@ def readyz(agent_manager: AgentManager = Depends(get_agent_manager)) -> dict[str
     return {"status": "ready", "registered_skills_count": len(skills)}
 
 
-def _get_request_df(session: AnalysisSession, df_json: str | None):
+def _run_background_job(job_id: str, skill_id: str, session: AnalysisSession, **params) -> None:
+    job_repo = get_job_repository()
+    job_repo.update_status(job_id, "running")
+    try:
+        agent_manager = get_agent_manager()
+        res = agent_manager.execute_skill(skill_id, session, **params)
+        job_repo.update_status(job_id, "completed", result=res.changes)
+    except Exception as e:
+        job_repo.update_status(job_id, "failed", error=str(e))
+
+
+@app.post("/api/jobs/execute", status_code=202, summary="Enqueue async skill execution")
+async def execute_job_async(
+    background_tasks: BackgroundTasks,
+    skill_id: str = Form(...),
+    df_json: str | None = Form(None),
+    session: AnalysisSession = Depends(get_analysis_session),
+    agent_manager: AgentManager = Depends(get_agent_manager),
+) -> Response:
+
+    if skill_id not in agent_manager.list_skills():
+        return JSONResponse(
+            status_code=400, content={"error": f"Skill '{skill_id}' no encontrada."}
+        )
+
+    df, err_resp = _get_request_df(session, df_json)
+    if err_resp:
+        return err_resp
+    session.current_df = df
+
+    job_repo = get_job_repository()
+    job_id = job_repo.create_job(skill_id, {"session_has_data": session.has_data()})
+    background_tasks.add_task(_run_background_job, job_id, skill_id, session)
+
+    return JSONResponse(
+        status_code=202,
+        content={
+            "job_id": job_id,
+            "status": "pending",
+            "message": "Trabajo encolado exitosamente.",
+        },
+    )
+
+
+@app.get("/api/jobs/{job_id}", summary="Check async job status")
+def get_job_status(job_id: str) -> JSONResponse:
+    job_repo = get_job_repository()
+    job = job_repo.get_job(job_id)
+    if not job:
+        return JSONResponse(status_code=404, content={"error": "Trabajo no encontrado."})
+    return JSONResponse(status_code=200, content=job)
+
+
+def _get_request_df(
+    session: AnalysisSession, df_json: str | None
+) -> tuple[pd.DataFrame | None, JSONResponse | None]:
+
     if in_vercel_runtime():
         if not df_json:
             return None, JSONResponse(

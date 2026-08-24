@@ -61,24 +61,38 @@ class FileSystemAdapter(FileIOProvider):
             return None, f"Error de lectura: {str(e)}"
 
     @staticmethod
+    def _sanitize_formulas(df: pd.DataFrame) -> pd.DataFrame:
+        """Sanitizes text cells starting with =, +, -, @ to prevent CSV Formula Injection."""
+        df_clean = df.copy()
+        for col in df_clean.select_dtypes(include=["object", "string"]).columns:
+            df_clean[col] = df_clean[col].apply(
+                lambda val: (
+                    f"'{val}"
+                    if isinstance(val, str) and val.startswith(("=", "+", "-", "@"))
+                    else val
+                )
+            )
+        return df_clean
+
+    @staticmethod
     def export_file(df: pd.DataFrame | None, format_type: str) -> tuple[str | None, str]:
         """
-        Saves DataFrame to disk.
+        Saves DataFrame to disk with formula injection sanitization.
         Returns (file_path, error_message).
         """
-
         if df is None:
             return None, "No hay datos para exportar."
 
         try:
+            df_export = FileSystemAdapter._sanitize_formulas(df)
             target_dir = "/tmp" if os.environ.get("VERCEL") else "."
             if format_type == "CSV":
                 filename = os.path.join(target_dir, "datos_procesados.csv")
-                df.to_csv(filename, index=False)
+                df_export.to_csv(filename, index=False)
                 return filename, ""
             elif format_type == "Excel":
                 filename = os.path.join(target_dir, "datos_procesados.xlsx")
-                df.to_excel(filename, index=False)
+                df_export.to_excel(filename, index=False)
                 return filename, ""
             else:
                 return None, "Formato desconocido."

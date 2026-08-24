@@ -25,16 +25,38 @@ class StatisticalAnalyzer:
         return [str(c) for c in df.select_dtypes(include=["object", "category", "string"]).columns]
 
     def calculate_descriptive_stats(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Calculates descriptive statistics including median."""
+        """Calculates descriptive statistics including median using DuckDB vectorization with fallback."""
         df_numeric = df.select_dtypes(include=np.number)
         if df_numeric.empty:
             return pd.DataFrame()
 
-        stats = df_numeric.describe().T
-        stats["median"] = df_numeric.median()
-        # Reorder and round
-        cols = ["count", "mean", "median", "std", "min", "25%", "50%", "75%", "max"]
-        return stats[cols].round(3)
+        try:
+            import duckdb
+
+            stats_list = []
+            for col in df_numeric.columns:
+                safe_col = str(col).replace('"', '""')
+                rel = duckdb.query(
+                    f'SELECT COUNT("{safe_col}") as count, AVG("{safe_col}") as mean, '
+                    f'MEDIAN("{safe_col}") as median, STDDEV_SAMP("{safe_col}") as std, '
+                    f'MIN("{safe_col}") as min, QUANTILE_CONT("{safe_col}", 0.25) as q25, '
+                    f'QUANTILE_CONT("{safe_col}", 0.50) as q50, QUANTILE_CONT("{safe_col}", 0.75) as q75, '
+                    f'MAX("{safe_col}") as max FROM df_numeric'
+                ).df()
+                row = rel.iloc[0].to_dict()
+                row["25%"] = row.pop("q25")
+                row["50%"] = row.pop("q50")
+                row["75%"] = row.pop("q75")
+                stats_list.append(pd.Series(row, name=col))
+
+            stats = pd.DataFrame(stats_list)
+            cols = ["count", "mean", "median", "std", "min", "25%", "50%", "75%", "max"]
+            return stats[cols].round(3)
+        except Exception:
+            stats = df_numeric.describe().T
+            stats["median"] = df_numeric.median()
+            cols = ["count", "mean", "median", "std", "min", "25%", "50%", "75%", "max"]
+            return stats[cols].round(3)
 
     def calculate_distribution_shape(self, df: pd.DataFrame) -> pd.DataFrame:
         """Calculates Skewness and Kurtosis (Fisher)."""

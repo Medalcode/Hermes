@@ -5,7 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-08-24
+
+### Added
+- **DuckDB Vectorized Analytics Engine**: Integrated DuckDB in `StatisticalAnalyzer` (`src/core/domain_services.py`) for high-performance vectorized descriptive statistics with automatic fallback to Pandas/NumPy.
+- **Async Background Job Queue System**: Added `JobRepository` (`src/adapters/repositories/job_repository.py`) and endpoints `POST /api/jobs/execute` (returning `202 Accepted` + `job_id`) and `GET /api/jobs/{job_id}` for polling background execution.
+- **CSV Formula Injection Sanitization**: Implemented cell-level sanitization in `FileSystemAdapter.export_file` to escape `=, +, -, @` formula triggers in exported CSV and Excel files.
+
+## [0.3.0] - 2026-08-24
+
+### Added
+- **Frontend Plotly Code-Splitting**: Created `LazyPlot.tsx` using dynamic `Promise.all([import(...)])` for Plotly.js, reducing the initial JavaScript bundle from 4.8MB to 239KB.
+- **Virtualized Data Table**: Created `VirtualizedTable.tsx` for paginated (10, 25, 50, 100 rows) and scroll-limited rendering of tabular previews.
+- **Health Probes**: Added `/healthz` (liveness) and `/readyz` (readiness) endpoints in `src/adapters/api/router.py`.
+
 ## [0.2.0] - 2026-08-24
+
 
 ### Added
 - **Hexagonal Architecture Core Ports**: Added `FileIOProvider` and `PlotterProvider` abstract ports to `src/core/ports.py` to enforce strict hexagonal layer isolation.

@@ -11,8 +11,10 @@ dependencies = [
     "fastapi",
     "uvicorn",
     "python-multipart",
-    "jinja2"
+    "jinja2",
+    "duckdb"
 ]
+
 
 [tool.ruff]
 target-version = "py311"

@@ -40,7 +40,6 @@ def test_read_root():
     assert response.json()["status"] == "ok"
 
 
-
 def test_healthz_and_readyz():
     res_health = client.get("/healthz")
     assert res_health.status_code == 200

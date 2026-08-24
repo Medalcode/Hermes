@@ -58,3 +58,49 @@ def test_vercel_stateless_mode(monkeypatch):
     resp = client.post("/api/clean/nulls", data={"cols": ["a"], "method": "drop"})
     assert resp.status_code == 400
     assert "Session dataframe payload is required" in resp.json()["error"]
+
+
+def test_async_job_endpoints():
+    import pandas as pd
+
+    df = pd.DataFrame({"num1": [10.0, 20.0, 30.0], "cat1": ["a", "b", "c"]})
+    df_json = dataframe_to_split_json(df)
+
+    # Enqueue async job
+    resp = client.post(
+        "/api/jobs/execute", data={"skill_id": "profile_dataset", "df_json": df_json}
+    )
+    assert resp.status_code == 202
+    data = resp.json()
+    assert data["status"] == "pending"
+    job_id = data["job_id"]
+
+    # Check status
+    res_status = client.get(f"/api/jobs/{job_id}")
+    assert res_status.status_code == 200
+    status_data = res_status.json()
+    assert status_data["job_id"] == job_id
+    assert status_data["status"] in ["pending", "running", "completed"]
+
+    # Invalid job id
+    res_invalid = client.get("/api/jobs/invalid-uuid-999")
+    assert res_invalid.status_code == 404
+
+
+def test_csv_formula_sanitization():
+    import pandas as pd
+
+    from src.adapters.fs.file_io import FileSystemAdapter
+
+    df_unsafe = pd.DataFrame({"formula": ["=SUM(A1:A10)", "+1+1", "-2+2", "@cmd", "safe_text"]})
+
+    file_path, err = FileSystemAdapter.export_file(df_unsafe, "CSV")
+    assert err == ""
+    assert file_path is not None
+
+    df_read = pd.read_csv(file_path)
+    assert df_read["formula"].iloc[0] == "'=SUM(A1:A10)"
+    assert df_read["formula"].iloc[1] == "'+1+1"
+    assert df_read["formula"].iloc[2] == "'-2+2"
+    assert df_read["formula"].iloc[3] == "'@cmd"
+    assert df_read["formula"].iloc[4] == "safe_text"
