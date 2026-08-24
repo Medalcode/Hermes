@@ -41,9 +41,8 @@ if os.path.exists("frontend/dist/assets"):
 
 
 def _get_index_html_response() -> Response:
-    for path in ["frontend/dist/index.html", "templates/index.html"]:
-        if os.path.exists(path):
-            return FileResponse(path)
+    if os.path.exists("frontend/dist/index.html"):
+        return FileResponse("frontend/dist/index.html")
     return JSONResponse(status_code=200, content={"status": "ok", "message": "Myna API is running"})
 
 
