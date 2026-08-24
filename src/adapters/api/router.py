@@ -1,4 +1,5 @@
 import io
+from typing import Any
 
 import pandas as pd
 from fastapi import Depends, FastAPI, File, Form, HTTPException, Request, Response, UploadFile
@@ -24,12 +25,26 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.middleware("http")
 async def auth_middleware(request: Request, call_next):
-    if request.url.path.startswith("/api/"):
+    path = request.url.path
+    if path.startswith("/api/") and path not in ["/healthz", "/readyz"]:
         try:
             await verify_api_key(request)
         except HTTPException:
             return JSONResponse(status_code=401, content={"error": "Invalid or missing API key"})
     return await call_next(request)
+
+
+@app.get("/healthz", summary="Liveness probe")
+def healthz() -> dict[str, str]:
+    return {"status": "ok"}
+
+
+@app.get("/readyz", summary="Readiness probe")
+def readyz(agent_manager: AgentManager = Depends(get_agent_manager)) -> dict[str, Any]:
+    skills = agent_manager.list_skills()
+    if not skills:
+        raise HTTPException(status_code=503, detail="AgentManager has no registered skills")
+    return {"status": "ready", "registered_skills_count": len(skills)}
 
 
 def _get_request_df(session: AnalysisSession, df_json: str | None):

@@ -35,9 +35,22 @@ def make_csv(content: str, name: str = "test.csv") -> dict:
 
 
 def test_read_root():
-    resp = client.get("/")
-    assert resp.status_code == 200
-    assert resp.json()["status"] == "ok"
+    response = client.get("/")
+    assert response.status_code == 200
+    assert response.json()["status"] == "ok"
+
+
+
+def test_healthz_and_readyz():
+    res_health = client.get("/healthz")
+    assert res_health.status_code == 200
+    assert res_health.json() == {"status": "ok"}
+
+    res_ready = client.get("/readyz")
+    assert res_ready.status_code == 200
+    data = res_ready.json()
+    assert data["status"] == "ready"
+    assert data["registered_skills_count"] > 0
 
 
 def test_upload_csv():

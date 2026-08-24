@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import type { AppState } from '../App'
+import VirtualizedTable from './VirtualizedTable'
 import { UploadCloud } from 'lucide-react'
+
 
 type Props = {
   session: AppState;
@@ -90,22 +92,12 @@ export default function UploadView({ session, updateSession }: Props) {
               {session.shape[0]} filas × {session.shape[1]} columnas
             </span>
           </div>
-          <div className="table-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  {session.columns.map((c, i) => <th key={i}>{c}</th>)}
-                </tr>
-              </thead>
-              <tbody>
-                {preview.map((row, i) => (
-                  <tr key={i}>
-                    {session.columns.map((c, j) => <td key={j}>{row[c]}</td>)}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <VirtualizedTable
+            columns={session.columns}
+            data={preview}
+            totalRows={session.shape[0]}
+          />
+
         </div>
       )}
     </div>

@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import type { AppState } from '../App'
-import Plot from 'react-plotly.js'
+import LazyPlot from './LazyPlot'
 import { BarChart } from 'lucide-react'
+
 
 type Props = {
   session: AppState;
@@ -100,7 +101,7 @@ export default function PlottingView({ session }: Props) {
 
       <div className="card" style={{ minHeight: '500px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'white' }}>
         {plotData ? (
-          <Plot
+          <LazyPlot
             data={plotData.data}
             layout={{ ...plotData.layout, autosize: true, margin: { l: 50, r: 50, b: 50, t: 50, pad: 4 } }}
             useResizeHandler={true}
@@ -108,6 +109,7 @@ export default function PlottingView({ session }: Props) {
             config={{ responsive: true, displayModeBar: false }}
           />
         ) : (
+
           <div style={{ color: 'var(--text-muted)', textAlign: 'center' }}>
             <BarChart size={48} style={{ opacity: 0.2, margin: '0 auto 16px' }} />
             <p>Selecciona los parámetros y haz clic en "Generar Gráfico"</p>
