@@ -12,6 +12,7 @@ client = TestClient(app)
 def clear_storage():
     """Clean up storage dirs before and after each test."""
     import shutil
+
     for d in ["storage/sessions", "storage/data", "/tmp/storage/sessions", "/tmp/storage/data"]:
         if os.path.exists(d):
             shutil.rmtree(d)
@@ -167,3 +168,14 @@ def test_upload_invalid_file():
     resp = client.post("/api/upload", files={"file": ("data.txt", b"not a csv", "text/plain")})
     assert resp.status_code == 400
     assert "error" in resp.json()
+
+
+def test_upload_then_plot():
+    csv_content = "a,b\n1,2\n3,4\n"
+    resp = client.post("/api/upload", files=make_csv(csv_content))
+    assert resp.status_code == 200
+
+    resp = client.post("/api/plot", data={"type": "correlation"})
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "data" in data or "layout" in data
